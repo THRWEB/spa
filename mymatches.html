@@ -1,19 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
-  <title>My Matches - FFTW</title>
-  
-  <link rel="stylesheet" href="style.css">
-
-  <link rel="manifest" href="/manifest.json">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet"/>
-  
-  <style>
-    /* এই পেজের জন্য নির্দিষ্ট কার্ড ডিজাইন */
+<style>
     .es-card {
       background: rgba(30, 41, 59, 0.5);
       backdrop-filter: blur(10px);
@@ -65,115 +50,90 @@
       .es-card { flex-direction: column; }
       .es-match-image { width: 100%; height: 120px; }
     }
+</style>
 
-    #loadingSpinner { transition: opacity 0.3s ease; }
-  </style>
-</head>
-
-<body> <div id="loadingSpinner" class="fixed inset-0 flex items-center justify-center z-50">
-    <svg class="animate-spin h-10 w-10 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-    </svg>
-  </div>
-
-  <main class="max-w-xl mx-auto px-4">
-    <h2 class="text-xl font-bold text-center mb-6 text-purple-200">My Joined Matches</h2>
+<main class="max-w-xl mx-auto px-4 py-4">
+    <h2 class="text-xl font-bold text-center mb-6 text-purple-200 uppercase tracking-wider">Joined Matches</h2>
     <div id="matchesList"></div>
     <div id="noMatches" class="text-center text-gray-400 mt-20 hidden">
       You have not joined any matches yet.
     </div>
-  </main>
+</main>
 
-  <script type="module" src="app-ui.js"></script>
+<script>
+    (async function() {
+        const matchesList = document.getElementById('matchesList');
+        const noMatches = document.getElementById('noMatches');
+        const TIMER_MINUTES = 30;
 
-  <script type="module">
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        // কার্ড তৈরি করার ফাংশন
+        function createMatchCard(match, joinedName) {
+            const div = document.createElement('div');
+            div.className = "es-card shadow-lg shadow-purple-900/10";
 
-    const auth = getAuth();
-    const db = getFirestore();
-    const matchesList = document.getElementById('matchesList');
-    const noMatches = document.getElementById('noMatches');
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const TIMER_MINUTES = 30;
+            // রুম আইডি টাইমার লজিক
+            if (match.roomgivenat && typeof match.roomgivenat === "object") {
+                const expiryTime = (match.roomgivenat.seconds * 1000) + (TIMER_MINUTES * 60 * 1000);
+                const timerDiv = document.createElement('div');
+                timerDiv.className = "es-timer";
+                div.appendChild(timerDiv);
 
-    function createMatchCard(match, joinedName) {
-      const div = document.createElement('div');
-      div.className = "es-card";
+                const timerId = setInterval(() => {
+                    const remaining = expiryTime - Date.now();
+                    if (remaining > 0) {
+                        const mins = Math.floor(remaining / 60000);
+                        const secs = Math.floor((remaining % 60000) / 1000);
+                        timerDiv.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                    } else {
+                        div.remove();
+                        clearInterval(timerId);
+                    }
+                }, 1000);
+            }
 
-      // রুম আইডি এক্সপায়ারি টাইমার
-      if (match.roomgivenat && typeof match.roomgivenat === "object") {
-        const expiryTime = (match.roomgivenat.seconds * 1000) + (TIMER_MINUTES * 60 * 1000);
-        const timerDiv = document.createElement('div');
-        timerDiv.className = "es-timer";
-        div.appendChild(timerDiv);
+            const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : 'TBA';
 
-        const timerId = setInterval(() => {
-          const remaining = expiryTime - Date.now();
-          if (remaining > 0) {
-            const mins = Math.floor(remaining / 60000);
-            const secs = Math.floor((remaining % 60000) / 1000);
-            timerDiv.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-          } else {
-            div.remove();
-            clearInterval(timerId);
-          }
-        }, 1000);
-      }
-
-      const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : (match.time || 'TBA');
-
-      div.innerHTML += `
-        <img class="es-match-image" src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}">
-        <div class="es-match-info">
-          <div class="es-title">${match.title || 'Classic Match'}</div>
-          <div class="es-row"><span class="es-label">Joined As:</span> <span class="es-name">${joinedName}</span></div>
-          <div class="es-row"><span class="es-label">Entry Fee:</span> <span class="es-value">₹${match.entry || '0'}</span></div>
-          <div class="es-row"><span class="es-label">Prize:</span> <span class="es-value">₹${match.prize || '0'}</span></div>
-          <div class="es-row"><span class="es-label">Match Time:</span> <span class="es-value text-xs">${matchDisplayTime}</span></div>
-          <div class="es-row mt-2"><span class="es-label">Room ID:</span> <span class="es-room">${match.roomid || 'WAIT'}</span></div>
-          <div class="es-row"><span class="es-label">Room Pass:</span> <span class="es-pass">${match.roompass || 'WAIT'}</span></div>
-        </div>
-      `;
-      return div;
-    }
-
-    async function displayMyMatches(user) {
-      matchesList.innerHTML = '';
-      noMatches.classList.add('hidden');
-      loadingSpinner.style.display = "flex";
-
-      try {
-        const snapshot = await getDocs(collection(db, "allMatches"));
-        const userMatches = [];
-        
-        snapshot.docs.forEach(mDoc => {
-          const match = mDoc.data();
-          const joinedPlayers = match.joinedPlayers || [];
-          const myJoins = joinedPlayers.filter(jp => jp.uid === user.uid);
-          myJoins.forEach(jp => userMatches.push({ match, joinedName: jp.name }));
-        });
-
-        if (userMatches.length === 0) {
-          noMatches.classList.remove('hidden');
-        } else {
-          userMatches.reverse().forEach(({match, joinedName}) => {
-            matchesList.appendChild(createMatchCard(match, joinedName));
-          });
+            div.innerHTML += `
+                <img class="es-match-image" src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}">
+                <div class="es-match-info">
+                  <div class="es-title">${match.title || 'Classic Match'}</div>
+                  <div class="es-row"><span class="es-label">Joined As:</span> <span class="es-name">${joinedName}</span></div>
+                  <div class="es-row"><span class="es-label">Entry Fee:</span> <span class="es-value">₹${match.entry || '0'}</span></div>
+                  <div class="es-row"><span class="es-label">Prize:</span> <span class="es-value">₹${match.prize || '0'}</span></div>
+                  <div class="es-row"><span class="es-label">Match Time:</span> <span class="es-value text-xs">${matchDisplayTime}</span></div>
+                  <div class="es-row mt-2"><span class="es-label">Room ID:</span> <span class="es-room">${match.roomid || 'WAIT'}</span></div>
+                  <div class="es-row"><span class="es-label">Room Pass:</span> <span class="es-pass">${match.roompass || 'WAIT'}</span></div>
+                </div>
+            `;
+            return div;
         }
-      } catch (err) {
-        console.error("Error loading matches:", err);
-      } finally {
-        loadingSpinner.style.opacity = '0';
-        setTimeout(() => loadingSpinner.style.display = "none", 300);
-      }
-    }
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) return window.location.href = "login.html";
-      displayMyMatches(user);
-    });
-  </script>
-</body>
-</html>
+        // ম্যাচ ডেটা ফেচ করা (Firebase instance use করা হচ্ছে যা index.html থেকে আসছে)
+        const user = firebase.auth().currentUser;
+        if (user) {
+            const db = firebase.firestore();
+            try {
+                const snapshot = await db.collection("allMatches").get();
+                const userMatches = [];
+                
+                snapshot.docs.forEach(mDoc => {
+                    const match = mDoc.data();
+                    const joinedPlayers = match.joinedPlayers || [];
+                    const myJoins = joinedPlayers.filter(jp => jp.uid === user.uid);
+                    myJoins.forEach(jp => userMatches.push({ match, joinedName: jp.name }));
+                });
+
+                if (userMatches.length === 0) {
+                    noMatches.classList.remove('hidden');
+                } else {
+                    matchesList.innerHTML = '';
+                    userMatches.reverse().forEach(({match, joinedName}) => {
+                        matchesList.appendChild(createMatchCard(match, joinedName));
+                    });
+                }
+            } catch (err) {
+                console.error("Error loading matches:", err);
+            }
+        }
+    })();
+</script>

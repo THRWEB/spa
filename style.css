@@ -20,8 +20,8 @@ html, body {
 /* ২. কন্টেন্ট যাতে হেডার বা ন্যাভের নিচে না ঢোকে (FIXED) */
 main, .page-content {
     /* আগে + 20px ছিল, সেটা কমিয়ে + 5px করা হয়েছে যাতে গ্যাপ কমে যায় */
-    padding-top: calc(var(--header-h) + 1px) !important;
-    padding-bottom: calc(var(--nav-h) + 1px) !important;
+    padding-top: calc(var(--header-h) + 0px) !important;
+    padding-bottom: calc(var(--nav-h) + 0px) !important;
     display: block;
     box-sizing: border-box;
 }

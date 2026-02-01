@@ -1,1 +1,34 @@
+<main class="px-4 md:px-6 max-w-4xl mx-auto">
+    <div class="promo-banner" onclick="window.open('https://www.youtube.com/', '_blank')">
+      <img src="https://i.postimg.cc/3WQyJmNY/1768402352957.jpg" alt="Join Our Community">
+    </div>
+
+    <div id="cardsGrid"></div>
+</main>
+
+<script>
+    // এই স্ক্রিপ্টটুকু শুধু হোম পেজের কার্ড রেন্ডার করবে
+    (function() {
+        const cardData = [
+            { url: "match-list.html?cat=soloc", section: "", label: "Solo:Classic", text: "orange-400", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
+            { url: "match-list.html?cat=solocs", section: "", label: "Solo:CS", text: "orange-400", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
+            { url: "match-list.html?cat=duoc", section: "duo-section", label: "Duo:Classic", text: "sky-400", img:"https://i.postimg.cc/136Fk9nM/image-1.png" },
+            { url: "match-list.html?cat=duocs", section: "duo-section", label: "Duo:CS", text: "sky-400", img:"https://i.postimg.cc/136Fk9nM/image-1.png" },
+            { url: "match-list.html?cat=squadc", section: "squad-section", label: "Squad:Classic", text: "yellow-400", img:"https://i.postimg.cc/wjpb8T82/Screenshot-20260113-181609-Free-Fire-MAX.jpg" },
+            { url: "match-list.html?cat=squadcs", section: "squad-section", label: "Squad:CS", text: "yellow-400", img:"https://i.postimg.cc/wjpb8T82/Screenshot-20260113-181609-Free-Fire-MAX.jpg" }
+        ];
+        
+        const grid = document.getElementById("cardsGrid");
+        if(grid) {
+            grid.innerHTML = cardData.map(card => `
+                <section class="es-main-section mb-2 ${card.section}" onclick="window.location.href='${card.url}'">
+                    <img src="${card.img}" alt="${card.label}" class="w-full h-40 object-cover rounded-2xl shadow-md" />
+                    <div class="p-3 text-center">
+                        <h3 class="card-title text-xl font-bold text-${card.text}">${card.label}</h3>
+                    </div>
+                </section>
+            `).join('');
+        }
+    })();
+</script>
 

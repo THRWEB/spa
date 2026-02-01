@@ -1,17 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>FFTW - Match List</title>
-  
-  <link rel="stylesheet" href="style.css">
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
-  
-  <style>
-    /* এই পেজের জন্য নির্দিষ্ট কার্ড ডিজাইন */
+<style>
     #matchCard { 
       border-radius: 1.3rem; 
       border-left: 6px solid #10b981;
@@ -20,111 +7,88 @@
     }
     .es-value { font-weight: 800; color: #4ade80; }
     .match-title { text-shadow: 0 2px 12px #08080866; }
+</style>
 
-    #loadingSpinner { transition: opacity 0.3s ease; }
-  </style>
-</head>
-
-<body>
-
-  <div id="loadingSpinner" class="fixed inset-0 flex items-center justify-center z-50">
-    <div class="flex flex-col items-center">
-      <svg class="animate-spin h-12 w-12 text-emerald-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V4z"></path>
-      </svg>
-      <p class="text-emerald-400 font-bold tracking-widest text-sm animate-pulse">FINDING MATCHES...</p>
-    </div>
-  </div>
-
-  <main class="max-w-md mx-auto px-3">
-    <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 uppercase text-center tracking-wider">Loading...</h2>
-    
+<main class="max-w-md mx-auto px-3 py-4">
+    <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 uppercase text-center tracking-wider">Loading Matches...</h2>
     <div id="matchContainer" class="space-y-4"></div>
-  </main>
+</main>
 
-  <script type="module" src="app-ui.js"></script>
+<script>
+    (function() {
+        // SPA-তে URL থেকে প্যারামিটার নেওয়ার একটু আলাদা সিস্টেম (যদি রাউটার সেটি পাস না করে)
+        // আমরা আপাতত সরাসরি URL থেকেই নিচ্ছি
+        const params = new URLSearchParams(window.location.search);
+        let categoryId = params.get('cat');
 
-  <script type="module">
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        // যদি ক্যাটাগরি না থাকে, তবে আগের পেজ থেকে সেভ করা ক্যাটাগরি খোঁজা
+        if(!categoryId) categoryId = window.currentCategory;
 
-    const db = getFirestore(); 
-    const spinner = document.getElementById('loadingSpinner');
+        const titles = {
+            'soloc': 'Solo Classic', 'solocs': 'Solo Clash Squad',
+            'duoc': 'Duo Classic', 'duocs': 'Duo Clash Squad',
+            'squadc': 'Squad Classic', 'squadcs': 'Squad Clash Squad'
+        };
 
-    const params = new URLSearchParams(window.location.search);
-    const categoryId = params.get('cat');
-
-    if (categoryId) {
-      const titles = {
-        'soloc': 'Solo Classic', 'solocs': 'Solo Clash Squad',
-        'duoc': 'Duo Classic', 'duocs': 'Duo Clash Squad',
-        'squadc': 'Squad Classic', 'squadcs': 'Squad Clash Squad'
-      };
-      document.getElementById('pageTitle').innerText = titles[categoryId] || "Matches";
-
-      const q = collection(db, "allMatches");
-
-      onSnapshot(q, (snapshot) => {
+        const pageTitle = document.getElementById('pageTitle');
         const container = document.getElementById('matchContainer');
-        container.innerHTML = ''; 
-        
-        // স্পিনার বন্ধ করা
-        if(spinner) {
-          spinner.style.opacity = '0';
-          setTimeout(() => spinner.style.display = 'none', 300);
+
+        if (categoryId && titles[categoryId]) {
+            pageTitle.innerText = titles[categoryId];
+            
+            const db = firebase.firestore();
+            const q = db.collection("allMatches");
+
+            // রিয়েল-টাইম ম্যাচ লিসেনার
+            const unsubscribe = q.onSnapshot((snapshot) => {
+                // যদি ইউজার পেজ থেকে চলে যায় তবে লিসেনার বন্ধ হবে
+                if (!document.getElementById('matchContainer')) {
+                    unsubscribe();
+                    return;
+                }
+
+                container.innerHTML = ''; 
+                let hasMatches = false;
+
+                snapshot.forEach((doc) => {
+                    const match = doc.data();
+                    
+                    if(match.category && match.category.toString().trim().toLowerCase() === categoryId.toLowerCase()) {
+                        hasMatches = true;
+                        const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";
+                        
+                        const card = `
+                            <div id="matchCard" class="px-4 pt-3 pb-4 mb-4 relative overflow-hidden">
+                                <div class="flex items-center gap-3">
+                                    <img src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}" 
+                                         class="rounded-lg object-cover w-16 h-16 border-2 border-emerald-800 shadow" />
+                                    <div class="match-title text-gray-100 text-lg font-bold mt-1">${match.title || 'Tournament'}</div>
+                                </div>
+                                
+                                <div class="mt-4 space-y-1.5 text-sm">
+                                    <div class="flex justify-between"><span>Entry Fee:</span><span class="es-value">₹${match.entry || 0}</span></div>
+                                    <div class="flex justify-between"><span>Prize:</span><span class="es-value">₹${match.prize || 0}</span></div>
+                                    <div class="flex justify-between"><span>Time:</span><span class="es-value">${matchDisplayTime}</span></div>
+                                    <div class="flex justify-between"><span>Map:</span><span class="es-value">${match.map || 'Bermuda'}</span></div>
+                                    <div class="flex justify-between"><span>Slots Left:</span><span class="es-value">${match.slot || 0}</span></div>
+                                </div>
+
+                                <button onclick="window.currentMatchId='${doc.id}'; router.navigate('match-details')" 
+                                    class="mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 rounded-xl w-full shadow-lg active:scale-95 uppercase text-sm">
+                                    Match Details
+                                </button>
+                            </div>`;
+                        container.innerHTML += card;
+                    }
+                });
+
+                if (!hasMatches) {
+                    container.innerHTML = `<p class="text-center text-gray-500 mt-20">No active matches for ${titles[categoryId]}</p>`;
+                }
+            });
+        } else {
+            pageTitle.innerText = "Category Not Found";
+            container.innerHTML = `<button onclick="router.navigate('home')" class="w-full p-4 bg-emerald-500 rounded-xl">Go Back Home</button>`;
         }
-
-        if (snapshot.empty) {
-            container.innerHTML = '<p class="text-center text-gray-500 mt-20">No matches found!</p>';
-            return;
-        }
-
-        let hasMatches = false;
-
-        snapshot.forEach((doc) => {
-          const match = doc.data();
-          
-          if(match.category && match.category.toString().trim().toLowerCase() === categoryId.toLowerCase()) {
-              hasMatches = true;
-              
-              // window.formatMatchTime (যা app-ui.js এ আছে) ব্যবহার করা হয়েছে
-              const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";
-              
-              container.innerHTML += `
-                <div id="matchCard" class="px-4 pt-3 pb-4 mb-4 relative overflow-hidden">
-                  <div class="flex items-center gap-3">
-                    <img src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}" 
-                         class="rounded-lg object-cover w-16 h-16 border-2 border-emerald-800 shadow" />
-                    <div class="match-title text-gray-100 text-lg font-bold mt-1">${match.title || 'Tournament'}</div>
-                  </div>
-                  
-                  <div class="mt-4 space-y-1.5 text-sm">
-                    <div class="flex justify-between"><span>Entry Fee:</span><span class="es-value">₹${match.entry || 0}</span></div>
-                    <div class="flex justify-between"><span>Prize:</span><span class="es-value">₹${match.prize || 0}</span></div>
-                    <div class="flex justify-between"><span>Time:</span><span class="es-value">${matchDisplayTime}</span></div>
-                    <div class="flex justify-between"><span>Map:</span><span class="es-value">${match.map || 'Bermuda'}</span></div>
-                    <div class="flex justify-between"><span>Slots Left:</span><span class="es-value">${match.slot || 0}</span></div>
-                  </div>
-
-                  <button onclick="window.location.href='match-details.html?id=${doc.id}'" 
-                    class="mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 rounded-xl w-full shadow-lg transition-all active:scale-95 uppercase text-sm">
-                    Match Details
-                  </button>
-                </div>`;
-          }
-        });
-
-        if (!hasMatches) {
-            container.innerHTML = '<p class="text-center text-gray-500 mt-20">No matches for ' + titles[categoryId] + '</p>';
-        }
-      }, (error) => {
-        if(spinner) spinner.style.display = 'none'; 
-        console.error("Firebase Error:", error);
-      });
-    } else {
-      if(spinner) spinner.style.display = 'none';
-      document.getElementById('pageTitle').innerText = "Category Missing";
-    }
-  </script>
-</body>
-</html>
+    })();
+</script>

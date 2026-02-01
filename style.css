@@ -1,4 +1,4 @@
-/* style.css - FFTW Layout Control */
+/* style.css - Central UI & Theme Control */
 :root {
     --bg-dark: #0f172a;       
     --orange-grad: linear-gradient(to right, #ea580c, #f97316, #fb923c); 
@@ -8,6 +8,7 @@
     --nav-h: 75px;            
 }
 
+/* ১. ইউনিভার্সাল রিসেট - এটি গ্যাপ কমানোর মূল চাবিকাঠি */
 * {
     margin: 0;
     padding: 0;
@@ -17,31 +18,40 @@
 html, body { 
     background-color: var(--bg-dark) !important; 
     color: white !important;
+    margin: 0; padding: 0;
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
 }
 
-/* কন্টেন্ট এবং হেডারের মাঝের গ্যাপ এখান থেকে কন্ট্রোল হবে */
+/* ২. কন্টেন্ট এরিয়া - গ্যাপ রিমুভ ট্রিক */
 main, .page-content {
-    padding-top: calc(var(--header-h) + 15px) !important; /* হেডারের ঠিক নিচ থেকে ১৫ পিক্সেল গ্যাপ */
-    padding-bottom: calc(var(--nav-h) + 20px) !important;
+    /* প্যাডিং কমিয়ে দিলাম যাতে কন্টেন্ট হেডারের কাছাকাছি থাকে */
+    padding-top: calc(var(--header-h) - 5px) !important;
+    padding-bottom: calc(var(--nav-h) - 10px) !important;
     display: block;
     width: 100%;
 }
 
+/* ভেতরের প্রথম এলিমেন্টের মার্জিন জিরো করা */
+main > *:first-child, .page-content > *:first-child {
+    margin-top: 0 !important;
+}
+
+/* ৩. হেডার ডিজাইন */
 header {
     position: fixed !important;
     top: 0; left: 0; width: 100%;
     height: var(--header-h);
     background: var(--orange-grad) !important;
     z-index: 10000;
-    display: flex; 
-    align-items: center;
-    padding: 0 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    display: flex; align-items: center;
+    box-sizing: border-box;
+    padding: 0 15px; /* লোগো বা টাইটেল সাইডে চাপানোর জন্য */
 }
 
+/* ৪. বটম ন্যাভবার ডিজাইন */
 .bottom-nav {
     position: fixed !important;
     bottom: 0; left: 0; width: 100%;
@@ -54,6 +64,7 @@ header {
     z-index: 10000;
 }
 
+/* ৫. ন্যাভবার আইটেম ও আইকন */
 .nav-item {
     display: flex; 
     flex-direction: column; 
@@ -61,12 +72,27 @@ header {
     color: #94a3b8; 
     text-decoration: none; 
     font-size: 11px;
+    width: 25%;
+    transition: all 0.2s ease;
+}
+
+.nav-item img { 
+    width: 24px !important; 
+    height: 24px !important; 
+    margin-bottom: 3px; 
+    object-fit: contain;
+    filter: brightness(0) invert(1); 
+    opacity: 0.7;
 }
 
 .nav-item.active { 
     color: var(--active-color) !important;
 }
 
-#loadingSpinner { 
-    background-color: var(--bg-dark) !important; 
+.nav-item.active img { 
+    filter: invert(56%) sepia(86%) saturate(1638%) hue-rotate(346deg) brightness(101%) contrast(96%) !important;
+    opacity: 1;
 }
+
+/* লোডিং স্পিনার */
+#loadingSpinner { background-color: var(--bg-dark) !important; }

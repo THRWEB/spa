@@ -6,6 +6,26 @@
   <title>FFTW - Secure Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+  
+  <script>
+    // app-ui.js লোড হওয়ার আগে রিডাইরেক্ট বন্ধ করার ট্রিক
+    // এটি মেইন অ্যাপের স্বয়ংক্রিয় লগইন রিডাইরেক্ট ব্লক করবে
+    const originalHref = window.location.href;
+    Object.defineProperty(window, 'location', {
+      value: {
+        ...window.location,
+        set href(url) {
+          if (url.includes('login.html') || url.includes('register.html')) {
+            console.log("Redirect blocked for Admin Panel");
+            return;
+          }
+          window.location.assign(url);
+        }
+      },
+      configurable: true
+    });
+  </script>
+
   <script type="module" src="app-ui.js"></script>
   
   <style>
@@ -14,7 +34,6 @@
     .tab-btn { padding: 10px 20px; border-radius: 10px; font-weight: 600; transition: 0.3s; opacity: 0.6; }
     .tab-btn.active { background: #10b981; color: white; opacity: 1; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
     input, select { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; padding: 12px; border-radius: 12px; outline: none; width: 100%; }
-    
     #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020617; z-index: 500; display: flex; justify-content: center; align-items: center; }
     #admin-panel { display: none; }
   </style>
@@ -23,30 +42,23 @@
 
   <div id="login-screen">
     <div class="glass p-8 max-w-sm w-full text-center space-y-6">
-      <div>
-        <h2 class="text-3xl font-black text-emerald-500 tracking-tighter uppercase">FFTW Admin</h2>
-        <p class="text-slate-500 text-[10px] uppercase tracking-widest mt-1">Standalone Secure Entry</p>
-      </div>
-      
+      <h2 class="text-3xl font-black text-emerald-500 uppercase">FFTW Admin</h2>
       <div class="space-y-3">
         <input type="text" id="adminUser" placeholder="Username">
         <input type="password" id="adminPass" placeholder="Password">
       </div>
-      
-      <button id="btnLogin" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-bold transition-all active:scale-95 text-white shadow-xl shadow-emerald-600/20">
-        VERIFY & LOGIN
-      </button>
-      <p id="loginError" class="text-red-500 text-xs hidden italic">Invalid username or password!</p>
+      <button id="btnLogin" class="w-full bg-emerald-600 py-4 rounded-2xl font-bold text-white shadow-xl">LOGIN</button>
+      <p id="loginError" class="text-red-500 text-xs hidden">Wrong credentials!</p>
     </div>
   </div>
 
   <div id="admin-panel" class="max-w-6xl mx-auto">
     <div class="flex justify-between items-center mb-10 border-b border-slate-800 pb-6">
       <h1 class="text-3xl font-black">ADMIN CONTROL</h1>
-      <button onclick="logoutAdmin()" class="bg-red-500/10 text-red-500 px-6 py-2 rounded-xl border border-red-500/20 font-bold text-xs hover:bg-red-500 transition-colors">EXIT PANEL</button>
+      <button onclick="logoutAdmin()" class="bg-red-500/10 text-red-500 px-6 py-2 rounded-xl border border-red-500/20 font-bold text-xs">EXIT</button>
     </div>
 
-    <div class="flex gap-2 mb-10 bg-slate-900/80 p-1.5 rounded-2xl w-fit border border-white/5">
+    <div class="flex gap-2 mb-10 bg-slate-900/80 p-1.5 rounded-2xl w-fit">
       <button onclick="switchTab('match-tab', this)" class="tab-btn active">Matches</button>
       <button onclick="switchTab('payment-tab', this)" class="tab-btn">Deposits</button>
       <button onclick="switchTab('withdraw-tab', this)" class="tab-btn">Withdrawals</button>
@@ -54,55 +66,36 @@
 
     <div id="match-tab" class="tab-content">
       <div class="glass p-8">
-        <h2 class="text-xl font-bold mb-6 text-emerald-400 flex items-center gap-2">
-            <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Add New Match
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <h2 class="text-xl font-bold mb-6 text-emerald-400">Add New Match</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <input type="text" id="mTitle" placeholder="Match Title">
           <select id="mCat">
             <option value="soloc">Solo Classic</option>
             <option value="solocs">Solo CS</option>
-            <option value="duoc">Duo Classic</option>
-            <option value="squadc">Squad Classic</option>
           </select>
           <input type="number" id="mEntry" placeholder="Entry Fee (₹)">
           <input type="number" id="mPrize" placeholder="Prize Pool (₹)">
-          <input type="number" id="mSlot" placeholder="Total Slots">
-          <input type="text" id="mMap" placeholder="Map Name">
+          <input type="number" id="mSlot" placeholder="Slots">
+          <input type="text" id="mMap" placeholder="Map">
           <input type="datetime-local" id="mTime">
-          <button id="pubBtn" class="bg-emerald-600 py-3 rounded-xl font-bold text-white shadow-lg md:col-span-2 lg:col-span-1">PUBLISH MATCH</button>
+          <button id="pubBtn" class="bg-emerald-600 py-3 rounded-xl font-bold">PUBLISH</button>
         </div>
       </div>
     </div>
 
     <div id="payment-tab" class="tab-content hidden">
-      <div class="glass p-6">
-        <h2 class="text-xl font-bold mb-6 text-sky-400">Add Money Requests</h2>
-        <div id="payBody" class="space-y-4">
-            <p class="text-gray-500 text-center py-10">Waiting for data...</p>
-        </div>
-      </div>
+      <div class="glass p-6"><h2 class="text-xl font-bold mb-6 text-sky-400">Deposits</h2><div id="payBody" class="space-y-4"></div></div>
     </div>
 
     <div id="withdraw-tab" class="tab-content hidden">
-      <div class="glass p-6">
-        <h2 class="text-xl font-bold mb-6 text-orange-400">Withdrawal Requests</h2>
-        <div id="withdrawBody" class="space-y-4">
-            <p class="text-gray-500 text-center py-10">Waiting for data...</p>
-        </div>
-      </div>
+      <div class="glass p-6"><h2 class="text-xl font-bold mb-6 text-orange-400">Withdrawals</h2><div id="withdrawBody" class="space-y-4"></div></div>
     </div>
   </div>
 
   <script type="module">
-    // --- তোমার দেওয়া নতুন লগইন ডিটেইলস ---
     const LOGIN_USER = "ffth01";
     const LOGIN_PASS = "123456";
 
-    const loginScreen = document.getElementById('login-screen');
-    const adminPanel = document.getElementById('admin-panel');
-
-    // ১. লগইন হ্যান্ডলিং
     document.getElementById('btnLogin').onclick = () => {
         const u = document.getElementById('adminUser').value;
         const p = document.getElementById('adminPass').value;
@@ -116,8 +109,8 @@
 
     function initPanelAccess() {
         if(sessionStorage.getItem('isAdminAuth') === 'true') {
-            loginScreen.style.display = 'none';
-            adminPanel.style.display = 'block';
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
             runFirebaseLogic();
         }
     }
@@ -127,76 +120,44 @@
         window.location.reload();
     };
 
-    // ২. ফায়ারবেস লজিক (app-ui.js কানেক্টেড থাকতে হবে)
     async function runFirebaseLogic() {
         const db = window.db;
-        if (!db) {
-            setTimeout(runFirebaseLogic, 500);
-            return;
-        }
-
+        if (!db) { setTimeout(runFirebaseLogic, 500); return; }
         const { collection, addDoc, onSnapshot, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js");
 
-        // ম্যাচ পাবলিশ করা
         document.getElementById('pubBtn').onclick = async () => {
-            const data = {
-                title: document.getElementById('mTitle').value,
-                category: document.getElementById('mCat').value,
-                entry: Number(document.getElementById('mEntry').value),
-                prize: Number(document.getElementById('mPrize').value),
-                slot: Number(document.getElementById('mSlot').value),
-                map: document.getElementById('mMap').value,
-                time: document.getElementById('mTime').value ? new Date(document.getElementById('mTime').value) : serverTimestamp(),
-                image: "https://i.postimg.cc/rsf7yB1M/1768308154801.jpg",
-                status: "open"
-            };
             try {
-                await addDoc(collection(db, "allMatches"), data);
-                alert("Match is Live on App!");
-            } catch (e) { alert("Error: " + e.message); }
+                await addDoc(collection(db, "allMatches"), {
+                    title: document.getElementById('mTitle').value,
+                    category: document.getElementById('mCat').value,
+                    entry: Number(document.getElementById('mEntry').value),
+                    prize: Number(document.getElementById('mPrize').value),
+                    slot: Number(document.getElementById('mSlot').value),
+                    map: document.getElementById('mMap').value,
+                    time: document.getElementById('mTime').value ? new Date(document.getElementById('mTime').value) : serverTimestamp(),
+                    status: "open", image: "https://i.postimg.cc/rsf7yB1M/1768308154801.jpg"
+                });
+                alert("Live!");
+            } catch (e) { alert(e.message); }
         };
 
-        // রিয়েল-টাইম ডিপোজিট রিকোয়েস্ট
-        onSnapshot(collection(db, "addMoneyRequests"), (s) => {
-            const payBody = document.getElementById('payBody');
-            payBody.innerHTML = '';
-            if(s.empty) payBody.innerHTML = '<p class="text-gray-500 text-center py-5">No Pending Requests</p>';
+        onSnapshot(collection(db, "addMoneyRequests"), s => {
+            const body = document.getElementById('payBody'); body.innerHTML = '';
             s.forEach(d => {
                 const r = d.data();
-                payBody.innerHTML += `
-                    <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
-                        <div class="text-xs">
-                            <p class="text-emerald-400 font-bold">₹${r.amount}</p>
-                            <p class="text-gray-400">${r.email}</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <a href="${r.proofUrl}" target="_blank" class="bg-sky-600/20 text-sky-400 px-3 py-2 rounded text-[10px] font-bold">PROOF</a>
-                            <button onclick="approveDeposit('${d.id}', '${r.uid}', ${r.amount})" class="bg-emerald-600 px-3 py-2 rounded text-[10px] font-bold">APPROVE</button>
-                        </div>
-                    </div>`;
+                body.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl"><div><p class="text-emerald-400">₹${r.amount}</p><p class="text-xs">${r.email}</p></div><div class="flex gap-2"><a href="${r.proofUrl}" target="_blank" class="bg-sky-600 px-3 py-1 rounded text-[10px]">PROOF</a><button onclick="approveDeposit('${d.id}','${r.uid}',${r.amount})" class="bg-emerald-600 px-3 py-1 rounded text-[10px]">APPROVE</button></div></div>`;
             });
         });
 
-        // রিয়েল-টাইম উইথড্র রিকোয়েস্ট
-        onSnapshot(collection(db, "withdrawalRequests"), (s) => {
-            const drawBody = document.getElementById('withdrawBody');
-            drawBody.innerHTML = '';
-            if(s.empty) drawBody.innerHTML = '<p class="text-gray-500 text-center py-5">No Pending Withdrawals</p>';
+        onSnapshot(collection(db, "withdrawalRequests"), s => {
+            const body = document.getElementById('withdrawBody'); body.innerHTML = '';
             s.forEach(d => {
                 const r = d.data();
-                drawBody.innerHTML += `
-                    <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
-                        <div class="text-xs">
-                            <p class="text-orange-400 font-bold">₹${r.amount}</p>
-                            <p class="text-gray-300 font-mono">${r.upi}</p>
-                        </div>
-                        <button onclick="deleteReq('withdrawalRequests', '${d.id}')" class="bg-emerald-600 px-4 py-2 rounded text-[10px] font-bold">PAID/DONE</button>
-                    </div>`;
+                body.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl"><div><p class="text-orange-400">₹${r.amount}</p><p class="text-xs font-mono">${r.upi}</p></div><button onclick="deleteReq('withdrawalRequests','${d.id}')" class="bg-emerald-600 px-4 py-1 rounded text-[10px]">DONE</button></div>`;
             });
         });
     }
 
-    // গ্লোবাল অ্যাকশন
     window.switchTab = (id, btn) => {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -206,24 +167,19 @@
 
     window.approveDeposit = async (id, uid, amt) => {
         const { doc, getDoc, updateDoc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js");
-        const db = window.db;
         try {
-            const userRef = doc(db, "users", uid);
-            const userSnap = await getDoc(userRef);
-            if(userSnap.exists()){
-                const currentBalance = Number(userSnap.data().deposit || 0);
-                await updateDoc(userRef, { deposit: currentBalance + Number(amt) });
-                await deleteDoc(doc(db, "addMoneyRequests", id));
-                alert("Deposit Success!");
+            const snap = await getDoc(doc(window.db, "users", uid));
+            if(snap.exists()){
+                await updateDoc(doc(window.db, "users", uid), { deposit: Number(snap.data().deposit || 0) + Number(amt) });
+                await deleteDoc(doc(window.db, "addMoneyRequests", id));
+                alert("Success!");
             }
         } catch(e) { alert(e.message); }
     };
 
     window.deleteReq = async (col, id) => {
         const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js");
-        if(confirm("Confirm action?")) {
-            await deleteDoc(doc(window.db, col, id));
-        }
+        if(confirm("Sure?")) await deleteDoc(doc(window.db, col, id));
     };
 
     initPanelAccess();

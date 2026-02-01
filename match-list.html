@@ -10,19 +10,18 @@
 </style>
 
 <main class="max-w-md mx-auto px-3 py-4">
-    <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 uppercase text-center tracking-wider">Loading Matches...</h2>
+    <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 uppercase text-center tracking-wider">Finding Matches...</h2>
     <div id="matchContainer" class="space-y-4"></div>
 </main>
 
-<script>
-    (function() {
-        // SPA-তে URL থেকে প্যারামিটার নেওয়ার একটু আলাদা সিস্টেম (যদি রাউটার সেটি পাস না করে)
-        // আমরা আপাতত সরাসরি URL থেকেই নিচ্ছি
-        const params = new URLSearchParams(window.location.search);
-        let categoryId = params.get('cat');
+<script type="module">
+    // আমরা সরাসরি মডিউল ইমপোর্ট ব্যবহার করছি যাতে কোনো এরর না আসে
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-        // যদি ক্যাটাগরি না থাকে, তবে আগের পেজ থেকে সেভ করা ক্যাটাগরি খোঁজা
-        if(!categoryId) categoryId = window.currentCategory;
+    (function() {
+        const db = getFirestore();
+        const params = new URLSearchParams(window.location.search);
+        let categoryId = params.get('cat') || window.currentCategory;
 
         const titles = {
             'soloc': 'Solo Classic', 'solocs': 'Solo Clash Squad',
@@ -36,12 +35,11 @@
         if (categoryId && titles[categoryId]) {
             pageTitle.innerText = titles[categoryId];
             
-            const db = firebase.firestore();
-            const q = db.collection("allMatches");
+            const q = collection(db, "allMatches");
 
-            // রিয়েল-টাইম ম্যাচ লিসেনার
-            const unsubscribe = q.onSnapshot((snapshot) => {
-                // যদি ইউজার পেজ থেকে চলে যায় তবে লিসেনার বন্ধ হবে
+            // রিয়েল-টাইম লিসেনার
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                // SPA চেক: যদি ইউজার অন্য পেজে চলে যায়
                 if (!document.getElementById('matchContainer')) {
                     unsubscribe();
                     return;
@@ -50,14 +48,14 @@
                 container.innerHTML = ''; 
                 let hasMatches = false;
 
-                snapshot.forEach((doc) => {
-                    const match = doc.data();
+                snapshot.forEach((docSnap) => {
+                    const match = docSnap.data();
                     
                     if(match.category && match.category.toString().trim().toLowerCase() === categoryId.toLowerCase()) {
                         hasMatches = true;
                         const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";
                         
-                        const card = `
+                        container.innerHTML += `
                             <div id="matchCard" class="px-4 pt-3 pb-4 mb-4 relative overflow-hidden">
                                 <div class="flex items-center gap-3">
                                     <img src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}" 
@@ -73,22 +71,24 @@
                                     <div class="flex justify-between"><span>Slots Left:</span><span class="es-value">${match.slot || 0}</span></div>
                                 </div>
 
-                                <button onclick="window.currentMatchId='${doc.id}'; router.navigate('match-details')" 
+                                <button onclick="window.currentMatchId='${docSnap.id}'; router.navigate('match-details')" 
                                     class="mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 rounded-xl w-full shadow-lg active:scale-95 uppercase text-sm">
                                     Match Details
                                 </button>
                             </div>`;
-                        container.innerHTML += card;
                     }
                 });
 
                 if (!hasMatches) {
-                    container.innerHTML = `<p class="text-center text-gray-500 mt-20">No active matches for ${titles[categoryId]}</p>`;
+                    container.innerHTML = '<p class="text-center text-gray-500 mt-20">No matches found for this category.</p>';
                 }
+            }, (error) => {
+                console.error("Snapshot Error:", error);
+                container.innerHTML = '<p class="text-center text-red-400 mt-20">Error loading matches.</p>';
             });
         } else {
-            pageTitle.innerText = "Category Not Found";
-            container.innerHTML = `<button onclick="router.navigate('home')" class="w-full p-4 bg-emerald-500 rounded-xl">Go Back Home</button>`;
+            pageTitle.innerText = "Category Error";
+            container.innerHTML = '<button onclick="router.navigate(\'home\')" class="w-full p-4 bg-emerald-500 rounded-xl font-bold">Return to Home</button>';
         }
     })();
 </script>

@@ -31,13 +31,13 @@
 <main class="px-4 max-w-md mx-auto space-y-6 py-4">
     <div class="profile-card p-8 text-center shadow-2xl">
       <div class="relative inline-block">
-        <img id="profileImage_page" src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-24 h-24 rounded-full mx-auto border-4 border-emerald-500 object-cover shadow-lg" />
+        <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-24 h-24 rounded-full mx-auto border-4 border-emerald-500 object-cover shadow-lg" />
         <div class="absolute bottom-0 right-0 bg-emerald-500 p-1 rounded-full border-2 border-slate-900">
            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
         </div>
       </div>
-      <h2 id="displayUsername" class="text-2xl font-bold mt-4 text-white uppercase tracking-wider">Loading...</h2>
-      <p id="displayEmail" class="text-emerald-400/70 text-sm mt-1">Fetching account...</p>
+      <h2 id="displayUsername" class="text-2xl font-bold mt-4 text-white uppercase">Loading...</h2>
+      <p id="displayEmail" class="text-emerald-400/70 text-sm mt-1 italic">Fetching email...</p>
     </div>
 
     <div class="profile-card p-2">
@@ -47,7 +47,7 @@
             <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-6 h-6" />
             <span class="font-semibold text-sm text-white">My Wallet</span>
           </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
         
         <button onclick="router.navigate('mymatches')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
@@ -55,7 +55,7 @@
             <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-6 h-6 white-icon" />
             <span class="font-semibold text-sm text-white">Match History</span>
           </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
         <button onclick="window.open('https://youtube.com/@free_fire_tournament_warrior', '_blank')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
@@ -63,7 +63,7 @@
             <img src="https://cdn-icons-png.flaticon.com/512/4187/4187236.png" class="w-6 h-6 white-icon" />
             <span class="font-semibold text-sm text-white">Social Media</span>
           </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
         <button id="openSupport" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
@@ -71,7 +71,7 @@
             <img src="https://cdn-icons-png.flaticon.com/512/4526/4526832.png" class="w-6 h-6 white-icon" />
             <span class="font-semibold text-sm text-white">Support</span>
           </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
 
         <button onclick="router.navigate('faq')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
@@ -79,16 +79,8 @@
             <img src="https://i.postimg.cc/k4HJ4pNR/help.png" class="w-6 h-6 white-icon" />
             <span class="font-semibold text-sm text-white">FAQs</span>
           </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
-
-        <button id="termsBtn" onclick="router.navigate('faq')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
-            <div class="flex items-center gap-4">
-              <img src="https://cdn-icons-png.flaticon.com/512/3503/3503827.png" class="w-6 h-6 white-icon" />
-              <span class="font-semibold text-sm text-white">Terms & Conditions</span>
-            </div>
-            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
-          </button>
 
         <button id="logoutBtn" class="flex items-center justify-between p-4 hover:bg-red-500/10 transition-all rounded-xl">
           <div class="flex items-center gap-4 text-red-400">
@@ -102,10 +94,6 @@
 
 <script>
     (function() {
-        // ফায়ারবেস অথেনটিকেশন চেক
-        const auth = window.auth;
-        const db = window.db;
-
         // মোডাল হ্যান্ডেলিং
         const modal = document.getElementById("supportModal");
         document.getElementById("openSupport").onclick = () => modal.classList.add("active");
@@ -118,31 +106,29 @@
           alert("Username Copied!");
         };
 
-        // ইউজার ডাটা ফেচিং
-        const user = auth.currentUser;
+        // window.auth এবং window.db ব্যবহার করা (app-ui.js থেকে আসছে)
+        const auth = window.auth;
+        const db = window.db;
+
+        // ইউজার ডেটা সেট করা
+        const user = auth ? auth.currentUser : null;
         if (user) {
             document.getElementById("displayEmail").textContent = user.email;
-            
-            // ডাটাবেজ থেকে ইউজারনেম ও ছবি নেওয়া
-            db.collection("users").doc(user.uid).get().then(doc => {
-                if(doc.exists) {
-                    const data = doc.data();
-                    document.getElementById("displayUsername").textContent = (data.username || user.email.split('@')[0]).toUpperCase();
-                    if(data.profilePic) {
-                        document.getElementById("profileImage_page").src = data.profilePic;
-                    }
-                }
-            });
+            document.getElementById("displayUsername").textContent = user.email.split('@')[0].toUpperCase();
+            document.getElementById("displayEmail").classList.remove('italic');
         }
 
-        // লগআউট ফিক্স (সরাসরি window.auth ব্যবহার করে)
+        // লগআউট লজিক (window.auth ব্যবহার করে)
         document.getElementById("logoutBtn").onclick = async () => {
           if(confirm("Are you sure you want to logout?")) {
             try {
-                await auth.signOut();
-                window.location.href = "login.html"; // এটি পুরোপুরি পেজ রিফ্রেশ করে লগইন-এ নিয়ে যাবে
+                if(auth) {
+                    await auth.signOut();
+                    window.location.href = "login.html";
+                }
             } catch (err) {
-                alert("Logout failed: " + err.message);
+                console.error("Logout Error:", err);
+                alert("Logout failed. Please try again.");
             }
           }
         };

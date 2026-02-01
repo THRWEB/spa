@@ -1,14 +1,14 @@
-/* style.css - Central UI & Theme Control (Cyberpunk Premium Version) */
+/* style.css - Central UI & Theme Control (Crimson Red Edition) */
 :root {
-    /* ডার্ক ব্যাকগ্রাউন্ড - গভীর নেভি ব্ল্যাক */
-    --bg-dark: #07090f;       
+    /* একদম ডার্ক ব্যাকগ্রাউন্ড - পিওর ব্ল্যাকের খুব কাছাকাছি */
+    --bg-dark: #0a0a0b;       
     
-    /* প্রিমিয়াম পার্পল গ্রাডিয়েন্ট */
-    --accent-grad: linear-gradient(135deg, #a855f7, #ec4899); 
+    /* পাওয়ারফুল রেড গ্রাডিয়েন্ট */
+    --accent-grad: linear-gradient(135deg, #dc2626, #991b1b); 
     
     /* বটম ন্যাভবার ডিজাইন */
-    --nav-bg: rgba(7, 9, 15, 0.98); 
-    --active-color: #f472b6;  /* ইলেকট্রিক পিঙ্ক একটিভ আইটেমের জন্য */
+    --nav-bg: rgba(10, 10, 11, 0.98); 
+    --active-color: #ef4444;  /* উজ্জ্বল লাল একটিভ আইটেমের জন্য */
     
     --header-h: 55px;         
     --nav-h: 65px;            
@@ -24,13 +24,13 @@
 
 html, body { 
     background-color: var(--bg-dark) !important; 
-    color: #f1f5f9 !important;
+    color: #ffffff !important;
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
 }
 
-/* ২. কন্টেন্ট এরিয়া - কন্টেন্ট যাতে হেডার বা ন্যাভবারের নিচে না ঢাকা পড়ে */
+/* ২. কন্টেন্ট এরিয়া */
 main, .page-content {
     padding-top: calc(var(--header-h) + 15px) !important;
     padding-bottom: calc(var(--nav-h) + 25px) !important;
@@ -38,18 +38,17 @@ main, .page-content {
     width: 100%;
 }
 
-/* ৩. হেডার ডিজাইন - গ্লাস ইফেক্ট ও পার্পল গ্লো */
+/* ৩. হেডার ডিজাইন - রেড বর্ডার ও শ্যাডো */
 header {
     position: fixed !important;
     top: 0; left: 0; width: 100%;
     height: var(--header-h);
-    background: rgba(7, 9, 15, 0.9) !important;
-    backdrop-filter: blur(10px);
-    border-bottom: 2px solid #3b0764; /* ডার্ক পার্পল বর্ডার */
+    background: #0f0f10 !important;
+    border-bottom: 2px solid #450a0a; /* ডার্ক রেড বর্ডার */
     z-index: 10000;
     display: flex; align-items: center;
     padding: 0 15px;
-    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.15);
+    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.15);
 }
 
 /* ৪. বটম ন্যাভবার ডিজাইন */
@@ -58,13 +57,13 @@ header {
     bottom: 0; left: 0; width: 100%;
     height: var(--nav-h);
     background: var(--nav-bg) !important;
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(25px);
     display: flex; justify-content: space-around;
     align-items: center;
-    border-top: 1px solid rgba(168, 85, 247, 0.2);
+    border-top: 1px solid rgba(220, 38, 38, 0.3);
     z-index: 10000;
     padding-bottom: 8px;
-    border-radius: 20px 20px 0 0; /* ওপরের দিকটা হালকা রাউন্ড */
+    border-radius: 25px 25px 0 0; /* মডার্ন রাউন্ডেড লুক */
 }
 
 /* ৫. ন্যাভবার আইটেম ও আইকন */
@@ -72,38 +71,38 @@ header {
     display: flex; 
     flex-direction: column; 
     align-items: center;
-    color: #64748b; 
+    color: #71717a; 
     text-decoration: none; 
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .nav-item img { 
-    width: 26px !important; 
-    height: 26px !important; 
+    width: 24px !important; 
+    height: 24px !important; 
     margin-bottom: 4px; 
     object-fit: contain;
-    filter: brightness(0) invert(0.5); /* ডিফল্ট গ্রে */
+    filter: brightness(0) invert(0.4); /* ইন-একটিভ আইকন */
     opacity: 0.6;
 }
 
 .nav-item.active { 
     color: var(--active-color) !important;
-    transform: scale(1.1) translateY(-3px); /* একটু বড় হয়ে ওপরে উঠবে */
+    transform: translateY(-5px); /* একটু ওপরে উঠে থাকবে */
 }
 
 .nav-item.active img { 
-    filter: none !important; /* কালার ফুল আইকন */
+    filter: none !important; 
     opacity: 1;
-    filter: drop-shadow(0 0 5px var(--active-color)) !important;
+    filter: drop-shadow(0 0 8px var(--active-color)) !important;
 }
 
-/* ৬. গ্লোয়িং বাটন বা একসেন্ট (Card-এ ব্যবহারের জন্য) */
+/* ৬. গ্লোয়িং বাটন বা কার্ড হাইলাইট */
 .btn-premium {
     background: var(--accent-grad);
-    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
     border: none;
     color: white;
     font-weight: bold;
@@ -113,7 +112,4 @@ header {
 /* লোডিং স্পিনার */
 #loadingSpinner { 
     background-color: var(--bg-dark) !important; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }

@@ -13,7 +13,6 @@
 </style>
 
 <main class="max-w-md mx-auto px-3 py-4">
-    <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 uppercase text-center tracking-wider">Matches</h2>
     <div id="matchContainer" class="space-y-4">
         </div>
 </main>
@@ -23,7 +22,6 @@
 
     (function() {
         const container = document.getElementById('matchContainer');
-        const titleText = document.getElementById('pageTitle');
         const categoryId = localStorage.getItem('currentCat');
 
         if (!categoryId) {
@@ -31,14 +29,7 @@
             return;
         }
 
-        const titles = {
-            'soloc': 'Solo Classic', 'solocs': 'Solo Clash Squad',
-            'duoc': 'Duo Classic', 'duocs': 'Duo Clash Squad',
-            'squadc': 'Squad Classic', 'squadcs': 'Squad Clash Squad'
-        };
-        titleText.innerText = titles[categoryId.toLowerCase()] || "Matches";
-
-        // window.db ব্যবহার করে সরাসরি ডাটা আনা
+        // Firestore থেকে ডাটা আনা
         const q = collection(window.db, "allMatches");
 
         onSnapshot(q, (snapshot) => {
@@ -49,6 +40,7 @@
             snapshot.forEach((doc) => {
                 const match = doc.data();
                 
+                // ক্যাটাগরি অনুযায়ী ফিল্টার করা
                 if (match.category && match.category.toString().toLowerCase().trim() === categoryId.toLowerCase()) {
                     count++;
                     const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";

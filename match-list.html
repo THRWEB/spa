@@ -10,16 +10,34 @@
 </style>
 
 <main class="max-w-md mx-auto px-3 py-4">
-    <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 uppercase text-center tracking-wider">Finding Matches...</h2>
-    <div id="matchContainer" class="space-y-4"></div>
+    <h2 id="pageTitle" class="text-xl font-bold text-emerald-400 mb-6 uppercase text-center tracking-wider">Matches</h2>
+    <div id="matchContainer" class="space-y-4">
+        </div>
 </main>
 
 <script type="module">
-    // আমরা সরাসরি মডিউল ইমপোর্ট ব্যবহার করছি যাতে কোনো এরর না আসে
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
     (function() {
-        const db = getFirestore();
+        // ফায়ারবেস অ্যাপটি খুঁজে নেওয়া (app-ui.js অলরেডি ইনিশিয়ালাইজ করেছে)
+        let app;
+        try {
+            app = getApp();
+        } catch (e) {
+            // যদি না পায় তবে নতুন কনফিগ দিয়ে ব্যাকআপ ইনিশিয়ালাইজ (তোমার ffth01 কনফিগ)
+            const firebaseConfig = {
+              apiKey: "AIzaSyB1vzDj_3-tymzU-EomjCIlbMhsoSnDiTU",
+              authDomain: "ffth01.firebaseapp.com",
+              projectId: "ffth01",
+              storageBucket: "ffth01.firebasestorage.app",
+              messagingSenderId: "879174774047",
+              appId: "1:879174774047:web:386e99dd5c947381c4142a"
+            };
+            app = initializeApp(firebaseConfig);
+        }
+
+        const db = getFirestore(app);
         const params = new URLSearchParams(window.location.search);
         let categoryId = params.get('cat') || window.currentCategory;
 
@@ -32,27 +50,28 @@
         const pageTitle = document.getElementById('pageTitle');
         const container = document.getElementById('matchContainer');
 
-        if (categoryId && titles[categoryId]) {
-            pageTitle.innerText = titles[categoryId];
+        if (categoryId) {
+            pageTitle.innerText = titles[categoryId.toLowerCase()] || "Matches";
             
+            // ফিল্টার করা কুয়েরি (সরাসরি ক্যাটাগরি অনুযায়ী ডাটা আনা)
             const q = collection(db, "allMatches");
 
-            // রিয়েল-টাইম লিসেনার
             const unsubscribe = onSnapshot(q, (snapshot) => {
-                // SPA চেক: যদি ইউজার অন্য পেজে চলে যায়
+                // SPA চেক: কন্টেইনার না থাকলে লিসেনার বন্ধ
                 if (!document.getElementById('matchContainer')) {
                     unsubscribe();
                     return;
                 }
 
                 container.innerHTML = ''; 
-                let hasMatches = false;
+                let matchCount = 0;
 
                 snapshot.forEach((docSnap) => {
                     const match = docSnap.data();
                     
-                    if(match.category && match.category.toString().trim().toLowerCase() === categoryId.toLowerCase()) {
-                        hasMatches = true;
+                    // ক্যাটাগরি ম্যাচিং চেক
+                    if(match.category && match.category.toString().toLowerCase() === categoryId.toLowerCase()) {
+                        matchCount++;
                         const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";
                         
                         container.innerHTML += `
@@ -79,16 +98,12 @@
                     }
                 });
 
-                if (!hasMatches) {
-                    container.innerHTML = '<p class="text-center text-gray-500 mt-20">No matches found for this category.</p>';
+                if (matchCount === 0) {
+                    container.innerHTML = '<div class="text-center py-20 text-gray-500">No active matches found for this category.</div>';
                 }
-            }, (error) => {
-                console.error("Snapshot Error:", error);
-                container.innerHTML = '<p class="text-center text-red-400 mt-20">Error loading matches.</p>';
             });
         } else {
-            pageTitle.innerText = "Category Error";
-            container.innerHTML = '<button onclick="router.navigate(\'home\')" class="w-full p-4 bg-emerald-500 rounded-xl font-bold">Return to Home</button>';
+            container.innerHTML = '<div class="text-center py-20 text-red-400 font-bold">Category not selected!</div>';
         }
     })();
 </script>

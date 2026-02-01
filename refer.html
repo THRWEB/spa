@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Refer & Earn - FFTW</title>
+  
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/kGmPVq0d/1768593114138.jpg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+  
+  <style>
+    /* রেফার পেজের নির্দিষ্ট ডিজাইন */
+    .refer-card {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 1.5rem;
+    }
+    .step-box {
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px dashed rgba(16, 185, 129, 0.3);
+      border-radius: 1rem;
+    }
+    @keyframes bounce-subtle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    .animate-bounce-subtle { animation: bounce-subtle 2s infinite; }
+    
+    #loadingSpinner { transition: opacity 0.3s ease; }
+  </style>
+</head>
+
+<body> 
+  <div id="loadingSpinner" class="fixed inset-0 flex items-center justify-center z-50">
+    <svg class="animate-spin h-10 w-10 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+    </svg>
+  </div>
+
+  <script type="module" src="app-ui.js"></script>
+
+  <main class="px-4 max-w-md mx-auto space-y-6">
+    
+    <div class="relative overflow-hidden rounded-3xl shadow-2xl border border-emerald-500/20 mt-2">
+      <img src="https://i.postimg.cc/nh95tNsB/1769104260982.png" class="w-full h-44 object-cover" alt="Referral Banner" />
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+      <div class="absolute bottom-4 left-6">
+        <h2 class="text-2xl font-bold text-white drop-shadow-md">Refer & Earn</h2>
+        <p class="text-emerald-400 text-sm font-medium">Earn ₹2 for every referral!</p>
+      </div>
+    </div>
+
+    <div class="refer-card p-6 text-center">
+      <p class="text-xs uppercase tracking-[0.2em] text-emerald-500 font-bold mb-4">Your Invitation Code</p>
+      <div class="flex items-center gap-2 bg-black/40 p-2 rounded-2xl border border-white/5">
+        <div id="referCode" class="flex-1 font-mono text-2xl font-black text-white tracking-widest">LOADING...</div>
+        <button id="copyBtn" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-3 rounded-xl font-bold text-sm transition-all active:scale-95 shadow-lg">
+          COPY
+        </button>
+      </div>
+    </div>
+
+    <div class="refer-card p-6">
+      <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-white">
+        <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
+        How it works
+      </h3>
+      <div class="space-y-4">
+        <div class="step-box p-4 flex gap-4 items-center">
+          <div class="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 font-bold flex-shrink-0">1</div>
+          <p class="text-sm text-gray-300">Invite your friends using your <b>Referral Code</b>.</p>
+        </div>
+        <div class="step-box p-4 flex gap-4 items-center">
+          <div class="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 font-bold flex-shrink-0">2</div>
+          <p class="text-sm text-gray-300">When they join their <b>first match</b> from the list.</p>
+        </div>
+        <div class="step-box p-4 flex gap-4 items-center border-emerald-500/50 bg-emerald-500/10">
+          <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-slate-900 font-bold flex-shrink-0 animate-bounce-subtle">3</div>
+          <p class="text-sm text-white">You receive <b>₹2 Deposit Cash</b> instantly!</p>
+        </div>
+      </div>
+    </div>
+
+    <button id="shareBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 py-4 rounded-2xl font-bold shadow-xl flex items-center justify-center gap-3 hover:brightness-110 active:scale-95 transition-all text-white">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+      Invite via WhatsApp
+    </button>
+  </main>
+
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const auth = getAuth();
+    const db = getFirestore();
+    const loadingSpinner = document.getElementById("loadingSpinner");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const snap = await getDoc(doc(db, "users", user.uid));
+          let code = (snap.exists() && snap.data().referCode) ? snap.data().referCode : user.email.split('@')[0].substring(0, 6).toUpperCase();
+          document.getElementById("referCode").textContent = code;
+        } catch (e) {
+          document.getElementById("referCode").textContent = "ERROR";
+        } finally {
+          if(loadingSpinner) {
+            loadingSpinner.style.opacity = '0';
+            setTimeout(() => loadingSpinner.style.display = "none", 300);
+          }
+        }
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    document.getElementById("copyBtn").onclick = () => {
+      const code = document.getElementById("referCode").textContent;
+      navigator.clipboard.writeText(code);
+      const copyBtn = document.getElementById("copyBtn");
+      copyBtn.textContent = "DONE!";
+      setTimeout(() => { copyBtn.textContent = "COPY"; }, 2000);
+    };
+
+    document.getElementById("shareBtn").onclick = () => {
+      const code = document.getElementById("referCode").textContent;
+      const appLink = "https://demo-8bf.pages.dev/install"; 
+      const msg = `🔥 Join Our Tournament App & Win Big Rewards! \n\n✅ Use My Referral Code: *${code}* \n\nDownload The App Right Now: \n${appLink}`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+  </script>
+</body>
+</html>

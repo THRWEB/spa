@@ -1,0 +1,36 @@
+{
+  "name": "FF tournament warrior",
+  "short_name": "FFTW",
+  "description": "Join the ultimate Free Fire tournaments and win exciting rewards!",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/zX3jZPDt/1768681652037.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/MT1bgKMG/appstore-(1).png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://i.postimg.cc/MT1bgKMG/appstore-(1).png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "lang": "en",
+  "categories": [
+    "games"
+  ]
+}

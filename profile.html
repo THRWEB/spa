@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Profile - FFTW</title>
+  
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/kGmPVq0d/1768593114138.jpg" sizes="192x192">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+  
+  <style>
+    /* শুধু প্রোফাইল কার্ডের স্টাইল (বাকি সব style.css থেকে আসবে) */
+    .profile-card {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 1.3rem;
+    }
+
+    /* মোডাল স্টাইল */
+    .modal {
+      position: fixed; left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(16,185,129,0.15);
+      display: none; align-items: center;
+      justify-content: center; z-index: 500;
+    }
+    .modal.active { display: flex; }
+    
+    .white-icon { filter: brightness(0) invert(1); }
+  </style>
+</head>
+
+<body> <div id="loadingSpinner" class="fixed inset-0 flex items-center justify-center z-50">
+    <svg class="animate-spin h-10 w-10 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+    </svg>
+  </div>
+
+  <div id="supportModal" class="modal">
+    <div class="bg-gray-900 rounded-2xl p-7 text-center w-full max-w-xs shadow-2xl border border-emerald-500">
+      <h3 class="text-lg font-bold text-emerald-400 mb-3">Support</h3>
+      <p class="text-sm font-semibold mb-4 text-white">Insta Username:</p>
+      <input type="text" id="supportNumberInput" value="abhinav_rai_93" readonly class="w-full mb-4 px-3 py-2 rounded text-gray-900 font-semibold bg-emerald-100 text-center"/>
+      <button id="copySupportBtn" class="px-4 py-2 rounded font-semibold bg-emerald-600 hover:bg-emerald-700 text-white w-full mb-2">Copy Username</button>
+      <button id="closeSupportBtn" class="px-4 py-2 rounded font-semibold bg-gray-700 hover:bg-gray-800 text-white w-full">Close</button>
+    </div>
+  </div>
+
+  <main class="px-4 max-w-md mx-auto space-y-6">
+    
+    <div class="profile-card p-8 text-center shadow-2xl">
+      <div class="relative inline-block">
+        <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-24 h-24 rounded-full mx-auto border-4 border-emerald-500 object-cover shadow-lg" />
+        <div class="absolute bottom-0 right-0 bg-emerald-500 p-1 rounded-full border-2 border-slate-900">
+           <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
+        </div>
+      </div>
+      <h2 id="displayUsername" class="text-2xl font-bold mt-4 text-white uppercase">Loading...</h2>
+      <p id="displayEmail" class="text-emerald-400/70 text-sm mt-1 italic">Fetching email...</p>
+    </div>
+
+    <div class="profile-card p-2">
+      <div class="flex flex-col">
+        <button onclick="window.location.href='wallet.html'" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+          <div class="flex items-center gap-4">
+            <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-6 h-6" />
+            <span class="font-semibold text-sm text-white">My Wallet</span>
+          </div>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+        
+        <button onclick="window.location.href='mymatches.html'" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+          <div class="flex items-center gap-4">
+            <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-6 h-6 white-icon" />
+            <span class="font-semibold text-sm text-white">Match History</span>
+          </div>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <button onclick="window.open('https://youtube.com/@free_fire_tournament_warrior', '_blank')" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+          <div class="flex items-center gap-4">
+            <img src="https://cdn-icons-png.flaticon.com/512/4187/4187236.png" class="w-6 h-6 white-icon" />
+            <span class="font-semibold text-sm text-white">Social Media</span>
+          </div>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <button id="supportBtn" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+          <div class="flex items-center gap-4">
+            <img src="https://cdn-icons-png.flaticon.com/512/4526/4526832.png" class="w-6 h-6 white-icon" />
+            <span class="font-semibold text-sm text-white">Support</span>
+          </div>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <button onclick="window.location.href='faq.html'" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+          <div class="flex items-center gap-4">
+            <img src="https://i.postimg.cc/k4HJ4pNR/help.png" class="w-6 h-6 white-icon" />
+            <span class="font-semibold text-sm text-white">FAQs</span>
+          </div>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <button onclick="window.location.href='faq.html#termsContent'" class="flex items-center justify-between p-4 hover:bg-emerald-500/10 transition-all rounded-xl border-b border-white/5">
+          <div class="flex items-center gap-4">
+            <img src="https://cdn-icons-png.flaticon.com/512/3503/3503827.png" class="w-6 h-6 white-icon" />
+            <span class="font-semibold text-sm text-white">Terms & Conditions</span>
+          </div>
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <button id="logoutBtn" class="flex items-center justify-between p-4 hover:bg-red-500/10 transition-all rounded-xl">
+          <div class="flex items-center gap-4 text-red-400">
+            <img src="https://cdn-icons-png.flaticon.com/512/4400/4400629.png" class="w-6 h-6" style="filter: invert(41%) sepia(82%) saturate(3015%) hue-rotate(338deg) brightness(101%) contrast(101%);" />
+            <span class="font-semibold text-sm">Logout Account</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="app-ui.js"></script>
+
+  <script type="module">
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+    const auth = getAuth();
+    const loadingSpinner = document.getElementById("loadingSpinner");
+
+    // Support Modal logic
+    document.getElementById("supportBtn").onclick = () => document.getElementById("supportModal").classList.add("active");
+    document.getElementById("closeSupportBtn").onclick = () => document.getElementById("supportModal").classList.remove("active");
+    document.getElementById("copySupportBtn").onclick = () => {
+      const input = document.getElementById("supportNumberInput");
+      input.select();
+      document.execCommand("copy");
+      alert("Username Copied!");
+    };
+
+    // User Data Update Logic
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        document.getElementById("displayEmail").textContent = user.email;
+        document.getElementById("displayUsername").textContent = user.email.split('@')[0].toUpperCase();
+        document.getElementById("displayEmail").classList.remove('italic');
+        loadingSpinner.style.display = "none";
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    // Logout Functionality
+    document.getElementById("logoutBtn").onclick = async () => {
+      if(confirm("Are you sure you want to logout?")) {
+        loadingSpinner.style.display = "flex";
+        await signOut(auth);
+        window.location.href = "login.html";
+      }
+    };
+  </script>
+</body>
+</html>

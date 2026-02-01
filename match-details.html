@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Join Match - FFTW</title>
+  
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet"/>
+  
+  <style>
+    /* এই পেজের জন্য নির্দিষ্ট কার্ড ডিজাইন */
+    #matchCard { 
+      border-radius: 1.3rem; 
+      border-left: 6px solid #10b981;
+      background: rgba(30, 41, 59, 0.4);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .match-title { text-shadow: 0 2px 12px #08080866; }
+    .es-value { font-weight: 800; color: #4ade80; }
+    
+    #loadingSpinner { transition: opacity 0.3s ease; }
+
+    button:disabled {
+      background: #1e293b !important;
+      color: #64748b !important;
+      cursor: not-allowed !important;
+      opacity: 0.7;
+    }
+
+    .input-field {
+      width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px;
+      background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.3);
+      color: white; outline: none; transition: 0.3s;
+    }
+    .input-field:focus { border-color: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+  </style>
+</head>
+
+<body> 
+  <div id="loadingSpinner" class="fixed inset-0 flex items-center justify-center z-50">
+    <div class="flex flex-col items-center">
+      <svg class="animate-spin h-12 w-12 text-emerald-500 mb-3" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V4z"></path>
+      </svg>
+      <p class="text-emerald-400 font-bold tracking-widest text-sm animate-pulse text-center">PREPARING MATCH...</p>
+    </div>
+  </div>
+
+  <script type="module" src="app-ui.js"></script>
+
+  <main class="max-w-md mx-auto px-4">
+    
+    <div id="matchCard" class="px-4 pt-4 pb-4 mb-6 relative overflow-hidden mt-2">
+      <div class="flex items-center gap-4">
+        <img id="matchImage" src="" class="rounded-lg object-cover w-16 h-16 border-2 border-emerald-800 shadow" />
+        <div id="matchTitle" class="match-title text-gray-100 text-lg font-bold">Loading...</div>
+      </div>
+      <div id="matchInfoContainer" class="mt-4 space-y-1.5 text-sm"></div>
+    </div>
+
+    <div class="p-5 bg-slate-800/30 rounded-2xl border border-white/10 backdrop-blur-lg">
+      <h3 class="text-lg font-bold mb-2 text-emerald-400">Enter In-Game Name(s)</h3>
+      <div id="nameFields"></div>
+      <p id="feeInfo" class="mt-2 text-lg font-semibold text-yellow-400"></p>
+      <button id="joinBtn" class="mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 px-4 rounded-xl w-full shadow-lg transition-all active:scale-95 uppercase">
+        Join Match
+      </button>
+      <div id="message" class="text-center mt-4 font-semibold text-sm"></div>
+    </div>
+
+    <section class="bg-red-900/10 border-l-4 border-red-600 p-5 rounded-2xl my-6">
+      <h3 class="text-red-500 font-bold text-lg mb-2 flex items-center gap-2">⚠️ Match Rules</h3>
+      <ul class="text-xs text-gray-300 space-y-2 list-disc list-inside">
+        <li>No usage of mod apps or hacks.</li>
+        <li>Headshot rate must not exceed 50%.</li>
+        <li>Level 15+ Free Fire ID required.</li>
+        <li class="text-yellow-200 italic">Record your gameplay for refund in case of hackers.</li>
+      </ul>
+    </section>
+
+    <div class="mt-8 pb-10">
+        <h3 class="text-lg font-bold mb-4 text-emerald-400">Joined Players</h3>
+        <div id="playerListContainer" class="grid grid-cols-2 gap-2 text-sm"></div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { getFirestore, doc, runTransaction, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+    const db = getFirestore(); 
+    const auth = getAuth();
+    const spinner = document.getElementById('loadingSpinner');
+
+    const params = new URLSearchParams(window.location.search);
+    const matchId = params.get('id');
+    let entryFee = 0, maxNames = 1, currentUserId = null, matchTimeRaw = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return window.location.href = "login.html";
+      currentUserId = user.uid;
+      if (!matchId) return window.location.href = "index.html";
+
+      onSnapshot(doc(db, "allMatches", matchId), (snap) => {
+        if (!snap.exists()) {
+            if(spinner) spinner.style.display = 'none';
+            return;
+        }
+        const data = snap.data();
+        entryFee = Number(data.entry) || 0;
+        matchTimeRaw = data.time;
+        
+        const cat = (data.category || "").toLowerCase();
+        maxNames = cat.includes('solo') ? 1 : cat.includes('duo') ? 2 : 4;
+
+        if(spinner) {
+            spinner.style.opacity = '0';
+            setTimeout(() => spinner.style.display = 'none', 300);
+        }
+
+        document.getElementById('matchTitle').textContent = data.title;
+        document.getElementById('matchImage').src = data.image || "https://i.postimg.cc/rsf7yB1M/1768308154801.jpg";
+        
+        const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(data.time) : "TBA";
+        document.getElementById('matchInfoContainer').innerHTML = `
+          <div class="flex justify-between"><span>Entry Fee:</span><span class="es-value">₹${data.entry || 0}</span></div>
+          <div class="flex justify-between"><span>Prize:</span><span class="es-value">₹${data.prize || 0}</span></div>
+          <div class="flex justify-between"><span>Time:</span><span class="es-value">${matchDisplayTime}</span></div>
+          <div class="flex justify-between"><span>Map:</span><span class="es-value">${data.map || 'Bermuda'}</span></div>
+          <div class="flex justify-between"><span>Slots Left:</span><span class="es-value">${data.slot || 0}</span></div>
+        `;
+        
+        renderNameFields();
+        updateFeeInfo();
+        checkEntryStatus();
+
+        document.getElementById('playerListContainer').innerHTML = (data.joinedPlayers || []).map(p => 
+            `<div class="bg-slate-800/40 p-2 rounded-lg border border-white/5">🎮 ${p.name}</div>`
+        ).join('');
+      });
+    });
+
+    function checkEntryStatus() {
+        if (!matchTimeRaw) return;
+        const matchTimestamp = matchTimeRaw.seconds ? matchTimeRaw.seconds * 1000 : Number(matchTimeRaw);
+        const interval = setInterval(() => {
+            if ((matchTimestamp - Date.now()) <= 60000) {
+                const btn = document.getElementById('joinBtn');
+                btn.disabled = true;
+                btn.innerText = "Entry Closed";
+                clearInterval(interval);
+            }
+        }, 1000);
+    }
+
+    function renderNameFields() {
+      const div = document.getElementById('nameFields');
+      if(div.children.length > 0) return;
+      for(let i=0; i<maxNames; i++) {
+        const inp = document.createElement('input');
+        inp.placeholder = `Player Name ${i+1}${i? ' (optional)':' (required)'}`;
+        inp.className = "input-field";
+        inp.oninput = updateFeeInfo;
+        div.appendChild(inp);
+      }
+    }
+
+    function updateFeeInfo() {
+      const inputs = document.querySelectorAll('#nameFields input');
+      const filled = [...inputs].filter(f => f.value.trim()).length;
+      const count = filled > 0 ? filled : 1;
+      document.getElementById("feeInfo").textContent = `Total Entry Fee: ₹${entryFee * count}`;
+    }
+
+    document.getElementById('joinBtn').onclick = async () => {
+      const names = [...document.querySelectorAll('#nameFields input')].map(i => i.value.trim()).filter(Boolean);
+      if (names.length < 1) return alert("Enter at least one player name.");
+
+      spinner.style.display = "flex";
+      spinner.style.opacity = "1";
+      const totalCost = entryFee * names.length;
+
+      try {
+        await runTransaction(db, async (transaction) => {
+          const userRef = doc(db, "users", currentUserId);
+          const matchRef = doc(db, "allMatches", matchId);
+          const userSnap = await transaction.get(userRef);
+          const matchSnap = await transaction.get(matchRef);
+
+          const userData = userSnap.data();
+          const matchData = matchSnap.data();
+          const balance = (userData.deposit || 0) + (userData.winnings || 0);
+
+          if (balance < totalCost) throw "Insufficient balance!";
+          if ((matchData.slot || 0) < names.length) throw "Not enough slots!";
+
+          let newDep = Math.max(0, (userData.deposit || 0) - totalCost);
+          let rem = totalCost - ((userData.deposit || 0) - newDep);
+          let newWin = (userData.winnings || 0) - rem;
+
+          transaction.update(userRef, { deposit: newDep, winnings: newWin, playedMatches: (userData.playedMatches || 0) + 1 });
+          transaction.update(matchRef, { slot: matchData.slot - names.length, joinedPlayers: arrayUnion(...names.map(n => ({ uid: currentUserId, name: n }))) });
+        });
+        
+        document.getElementById("message").innerHTML = "<span class='text-green-400 text-center block'>Joined Successfully!</span>";
+        setTimeout(() => window.location.href = "mymatches.html", 1500);
+      } catch (e) {
+        alert("Error: " + e);
+        spinner.style.display = "none";
+      }
+    };
+  </script>
+</body>
+</html>

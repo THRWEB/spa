@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>All Transactions - FFTW</title>
+  
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  
+  <style>
+    /* ট্রানজেকশন পেজের জন্য নির্দিষ্ট ডিজাইন */
+    .glass-card { 
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* কন্টেন্ট গ্যাপ অ্যাডজাস্টমেন্ট */
+    main { padding-top: 10px !important; }
+
+    /* স্ট্যাটাস ব্যাজ কালার */
+    .status-pending { color: #facc15; background: rgba(250, 204, 21, 0.1); }
+    .status-success { color: #4ade80; background: rgba(74, 222, 128, 0.1); }
+    .status-match { color: #a78bfa; background: rgba(167, 139, 250, 0.1); }
+    .status-failed { color: #f87171; background: rgba(248, 113, 113, 0.1); }
+
+    #loadingSpinner { transition: opacity 0.3s ease; }
+  </style>
+</head>
+
+<body> <div id="loadingSpinner" class="fixed inset-0 flex items-center justify-center z-50">
+    <div class="flex flex-col items-center">
+      <svg class="animate-spin h-10 w-10 text-emerald-500 mb-2" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V4z"></path>
+      </svg>
+      <p class="text-xs text-emerald-500 font-bold uppercase tracking-widest text-center">Loading History...</p>
+    </div>
+  </div>
+
+  <main class="max-w-md mx-auto px-4 space-y-6">
+    
+    <div class="flex items-center justify-between mb-2">
+      <button onclick="history.back()" class="p-2 bg-white/5 rounded-full border border-white/10">
+        <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <h2 class="text-xl font-bold text-emerald-400 uppercase tracking-tight">Full History</h2>
+      <div class="w-10"></div> 
+    </div>
+
+    <div id="historyList" class="space-y-4"></div>
+
+    <div id="noData" class="hidden text-center py-20">
+      <div class="bg-white/5 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
+        <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <p class="text-gray-400 font-bold">No Records Found!</p>
+      <p class="text-xs text-gray-500 mt-1">Join matches or add money to see history.</p>
+    </div>
+
+  </main>
+
+  <script type="module" src="app-ui.js"></script>
+  
+  <script type="module">
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+    const auth = getAuth();
+    const db = getFirestore();
+    const historyList = document.getElementById("historyList");
+    const noData = document.getElementById("noData");
+    const spinner = document.getElementById("loadingSpinner");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return window.location.href = "login.html";
+
+      try {
+        let allTransactions = [];
+
+        // ১. লোড অ্যাড মানি/উইথড্র রিকোয়েস্ট
+        const transSnapshot = await getDocs(query(collection(db, "transactionRequests"), where("uid", "==", user.uid)));
+        transSnapshot.forEach(doc => {
+          const data = doc.data();
+          allTransactions.push({
+            type: data.type,
+            amount: data.amount,
+            status: data.status || 'pending',
+            time: data.timestamp ? data.timestamp.seconds : 0,
+            label: data.type === 'deposit' ? 'Added Cash' : 'Withdrawal'
+          });
+        });
+
+        // ২. লোড ম্যাচ জয়েনিং হিস্ট্রি
+        const matchSnapshot = await getDocs(collection(db, "allMatches"));
+        matchSnapshot.forEach(doc => {
+          const match = doc.data();
+          const joinedPlayers = match.joinedPlayers || [];
+          const myJoins = joinedPlayers.filter(p => p.uid === user.uid);
+          
+          myJoins.forEach(() => {
+            allTransactions.push({
+              type: 'match_join',
+              amount: match.entry || 0,
+              status: 'success',
+              time: 0, 
+              label: 'Match Joined',
+              title: match.title
+            });
+          });
+        });
+
+        // টাইম অনুযায়ী সাজানো (বড় থেকে ছোট)
+        allTransactions.sort((a, b) => b.time - a.time);
+
+        if (allTransactions.length === 0) {
+          noData.classList.remove("hidden");
+        } else {
+          allTransactions.forEach(item => {
+            const dateStr = item.time > 0 ? new Date(item.time * 1000).toLocaleDateString('en-GB') : 'Recently';
+            let iconPath, colorClass, statusClass, symbol;
+
+            if (item.type === 'deposit') {
+              iconPath = '<path d="M12 4v16m8-8H4"></path>';
+              colorClass = 'text-emerald-400';
+              statusClass = item.status === 'success' ? 'status-success' : 'status-pending';
+              symbol = '+';
+            } else if (item.type === 'withdraw') {
+              iconPath = '<path d="M20 12H4"></path>';
+              colorClass = 'text-red-400';
+              statusClass = item.status === 'success' ? 'status-success' : 'status-pending';
+              symbol = '-';
+            } else {
+              iconPath = '<path d="M13 10V3L4 14h7v7l9-11h-7z"></path>';
+              colorClass = 'text-purple-400';
+              statusClass = 'status-match';
+              symbol = '-';
+            }
+
+            historyList.innerHTML += `
+              <div class="glass-card rounded-2xl p-4 flex items-center justify-between shadow-lg">
+                <div class="flex items-center gap-4">
+                  <div class="p-3 bg-white/5 rounded-xl border border-white/10">
+                    <svg class="w-6 h-6 ${colorClass}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      ${iconPath}
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-gray-100 text-sm">${item.label}</h3>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase">${item.title || dateStr}</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="font-black text-lg ${colorClass}">${symbol} ₹${item.amount}</p>
+                  <span class="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${statusClass}">${item.status}</span>
+                </div>
+              </div>
+            `;
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching history:", err);
+      } finally {
+        if(spinner) {
+            spinner.style.opacity = '0';
+            setTimeout(() => spinner.style.display = "none", 300);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

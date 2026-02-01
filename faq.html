@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Help & Legal - FFTW</title>
+  
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+  
+  <style>
+    /* স্পিনারকে হেডার এবং ন্যাভবারের মাঝখানে ফিক্স করা */
+    #pageLoading {
+      position: fixed;
+      top: 60px;    /* হেডারের আনুমানিক উচ্চতা */
+      bottom: 70px; /* ন্যাভবারের আনুমানিক উচ্চতা */
+      left: 0;
+      right: 0;
+      z-index: 10;  /* হেডার/ন্যাভ এর নিচে কিন্তু কন্টেন্টের উপরে */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+      transition: opacity 0.3s ease;
+    }
+
+    .loader {
+      width: 40px; height: 40px; border: 4px solid rgba(167,139,250,.1);
+      border-top-color: #a78bfa; border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .es-section {
+      background: rgba(30, 41, 59, 0.3);
+      backdrop-filter: blur(10px);
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .faq-q { transition: all 0.3s; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .rotate-180 { transform: rotate(180deg); }
+    .legal-text { font-size: 0.85rem; line-height: 1.6; color: #94a3b8; }
+    .legal-text b { color: #e2e8f0; }
+
+    /* কন্টেন্ট গ্যাপ ফিক্স */
+    main { padding-top: 10px !important; }
+  </style>
+</head>
+
+<body>
+  <div id="pageLoading"><div class="loader"></div></div>
+
+  <script type="module" src="app-ui.js"></script>
+
+  <main class="max-w-3xl mx-auto px-4">
+
+    <section class="es-section mt-4">
+      <h2 class="text-2xl font-black text-emerald-400 mb-6 flex items-center gap-3">
+        <span class="p-2 bg-emerald-500/20 rounded-lg">❓</span> FAQ
+      </h2>
+      
+      <div class="space-y-2">
+        <div class="faq-item">
+          <button class="faq-q w-full py-4 flex items-center justify-between text-left" data-target="ans1">
+            <span class="font-bold text-gray-100">How to join a match?</span>
+            <svg class="w-5 h-5 text-emerald-400 transition-transform" id="ic-ans1" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.854a.75.75 0 111.08 1.04l-4.24 4.405a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"/></svg>
+          </button>
+          <div id="ans1" class="hidden pb-4 text-sm text-gray-400">Select your preferred match from the home screen. Click 'Join', enter your exact In-game Name, and confirm. Ensure you have sufficient balance in your wallet.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q w-full py-4 flex items-center justify-between text-left" data-target="ans2">
+            <span class="font-bold text-gray-100">When will I get Room ID & Password?</span>
+            <svg class="w-5 h-5 text-emerald-400 transition-transform" id="ic-ans2" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.854a.75.75 0 111.08 1.04l-4.24 4.405a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"/></svg>
+          </button>
+          <div id="ans2" class="hidden pb-4 text-sm text-gray-400">Room details are shared in the 'My Matches' section 10-15 minutes before the match start time. Please stay active in the app at that time.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q w-full py-4 flex items-center justify-between text-left" data-target="ans3">
+            <span class="font-bold text-gray-100">Withdrawal Processing Time?</span>
+            <svg class="w-5 h-5 text-emerald-400 transition-transform" id="ic-ans3" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.854a.75.75 0 111.08 1.04l-4.24 4.405a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"/></svg>
+          </button>
+          <div id="ans3" class="hidden pb-4 text-sm text-gray-400">Withdrawals are processed within 24-48 hours. In some technical cases, it might take a bit longer. Your money is 100% safe.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="es-section">
+      <h2 class="text-2xl font-black text-yellow-500 mb-6 flex items-center gap-3">
+        <span class="p-2 bg-yellow-500/20 rounded-lg">⚔️</span> Game Rules
+      </h2>
+      <div class="legal-text space-y-4">
+        <p><b>1. Anti-Cheat Policy:</b> Use of hacks, scripts, or third-party mods is strictly prohibited. Offenders will be permanently banned with zero refund.</p>
+        <p><b>2. Teaming Up:</b> Teaming in Solo matches is a punishable offense. Both players will be disqualified immediately.</p>
+        <p><b>3. Video Proof:</b> To claim a refund against hackers, you must provide full gameplay recording from landing to death. No refund without valid proof.</p>
+      </div>
+    </section>
+
+    <section id="termsContent" class="es-section">
+      <h2 class="text-2xl font-black text-red-500 mb-6 flex items-center gap-3">
+        <span class="p-2 bg-red-500/20 rounded-lg">📜</span> Terms & Conditions
+      </h2>
+      <div class="legal-text space-y-6">
+        <div>
+          <b>1. Introduction:</b>
+          <p>By using FFTW, you agree to comply with our platform rules. This app is designed for competitive skill-based esports gaming only.</p>
+        </div>
+        <div>
+          <b>2. Account Security:</b>
+          <p>Multiple accounts on a single device are not allowed. You are responsible for maintaining your account's confidentiality.</p>
+        </div>
+        <div>
+          <b>3. Refund Policy:</b>
+          <p>Full refunds are issued only if a match is cancelled by Admin. No refunds if you fail to join the room on time.</p>
+        </div>
+        <div>
+          <b>4. Final Decisions:</b>
+          <p>Tournament results may take 1-2 hours to update. Admin decisions regarding disputes are final and binding.</p>
+        </div>
+        <div class="p-4 bg-red-500/10 rounded-xl border border-red-500/20 text-red-200">
+          <b>Disclaimer:</b> FFTW does not support gambling. It is a skill-based platform. Users under 18 must have parental consent.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // FAQ Accordion Logic
+    document.querySelectorAll(".faq-q").forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.getAttribute("data-target");
+        const ans = document.getElementById(id);
+        const ic = document.getElementById("ic-" + id);
+        const isOpen = !ans.classList.contains("hidden");
+        
+        document.querySelectorAll("[id^='ans']").forEach(a => a.classList.add("hidden"));
+        document.querySelectorAll("[id^='ic-']").forEach(i => i.classList.remove("rotate-180"));
+        
+        if (!isOpen) {
+          ans.classList.remove("hidden");
+          ic.classList.add("rotate-180");
+        }
+      };
+    });
+
+    // Spinner Logic Fix
+    window.addEventListener('load', () => {
+      const spinner = document.getElementById("pageLoading");
+      setTimeout(() => { 
+        if(spinner) {
+          spinner.style.opacity = "0";
+          setTimeout(() => spinner.style.display = "none", 300);
+        }
+      }, 500);
+      
+      if(window.location.hash) {
+        const el = document.querySelector(window.location.hash);
+        if(el) el.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  </script>
+</body>
+</html>

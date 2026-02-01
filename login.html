@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+  <title>FFTW - Login</title>
+  <link rel="manifest" href="/manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: url('https://i.postimg.cc/kDPBb1rP/file-00000000f6b8622f83cf3191487cb4e0-2.png') center/cover no-repeat fixed;
+      margin: 0;
+      color: white;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 0;
+    }
+    .loading-spinner {
+      stroke: #10b981;
+      animation: spin 1s linear infinite;
+      height: 32px;
+      width: 32px;
+      margin: 1rem auto 0;
+      display: none;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="relative flex items-center justify-center min-h-screen px-4">
+  <div class="overlay"></div>
+  <main class="relative z-10 max-w-md w-full bg-emerald-950/90 backdrop-blur-sm rounded-2xl p-8 shadow-[0_0_25px_rgba(16,185,129,0.5)] border border-emerald-500/30">
+    <h1 id="formTitle" class="text-center text-2xl font-bold mb-6 text-emerald-400">Login to FFTW</h1>
+    <form id="authForm" class="space-y-5" novalidate>
+      <div>
+        <label for="emailInput" class="block text-emerald-200 font-semibold mb-1 text-sm">Email Address</label>
+        <input id="emailInput" type="email" autocomplete="email" placeholder="Enter your email" required
+               class="w-full px-4 py-3 rounded-lg bg-emerald-900/50 focus:bg-emerald-800/70 text-white border border-emerald-500/30 focus:border-emerald-400/50 outline-none transition-all duration-300" />
+      </div>
+      <div id="passwordGroup">
+        <label for="passwordInput" class="block text-emerald-200 font-semibold mb-1 text-sm">Password</label>
+        <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Enter your password" required
+               class="w-full px-4 py-3 rounded-lg bg-emerald-900/50 focus:bg-emerald-800/70 text-white border border-emerald-500/30 focus:border-emerald-400/50 outline-none transition-all duration-300" />
+      </div>
+
+      <div id="referralGroup" style="display: none;">
+        <label for="referralInput" class="block text-emerald-200 font-semibold mb-1 text-sm">Referral Code (Optional)</label>
+        <input id="referralInput" type="text" placeholder="Enter refer code" 
+               class="w-full px-4 py-3 rounded-lg bg-emerald-900/50 focus:bg-emerald-800/70 text-white border border-emerald-500/30 focus:border-emerald-400/50 outline-none transition-all duration-300" />
+      </div>
+
+      <button id="submitBtn" type="submit" class="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 font-semibold text-white rounded-lg py-3 hover:brightness-105 hover:shadow-lg hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+        Login
+      </button>
+    </form>
+    <button id="forgotPasswordBtn" class="mt-4 w-full text-emerald-400 hover:text-emerald-300 underline font-medium hover:no-underline transition-colors duration-200">
+      Forgot Password?
+    </button>
+    <p id="toggleAuthLink" class="mt-6 text-center text-emerald-400 cursor-pointer font-semibold hover:text-emerald-300 select-none transition-colors duration-200">New user? Sign up here</p>
+    <p id="msg" class="min-h-[1.5rem] mt-4 text-center font-semibold"></p>
+    <svg class="loading-spinner mx-auto" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="25" cy="25" r="20" fill="none" stroke-width="5" />
+    </svg>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtRBspf78RSBv6UhS7YG8BjdM3UcCReT8",
+      authDomain: "fir-dc7ff.firebaseapp.com",
+      projectId: "fir-dc7ff",
+      storageBucket: "fir-dc7ff.firebasestorage.app",
+      messagingSenderId: "993356367302",
+      appId: "1:993356367302:web:726c91c76dc030df73dec7",
+      measurementId: "G-9KS20RLBXJ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const authForm = document.getElementById('authForm');
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const referralInput = document.getElementById('referralInput');
+    const referralGroup = document.getElementById('referralGroup');
+    const submitBtn = document.getElementById('submitBtn');
+    const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+    const toggleAuthLink = document.getElementById('toggleAuthLink');
+    const formTitle = document.getElementById('formTitle');
+    const msg = document.getElementById('msg');
+    const spinner = document.querySelector('.loading-spinner');
+    const passwordGroup = document.getElementById('passwordGroup');
+
+    let mode = 'login';
+
+    function setLoading(isLoading) {
+      spinner.style.display = isLoading ? 'block' : 'none';
+      submitBtn.disabled = isLoading;
+      forgotPasswordBtn.disabled = isLoading;
+      toggleAuthLink.style.pointerEvents = isLoading ? 'none' : 'auto';
+    }
+
+    function setMessage(text = '', type = '') {
+      msg.textContent = text;
+      msg.className = 'min-h-[1.5rem] mt-4 text-center font-semibold';
+      if (type === 'error') msg.classList.add('text-red-400');
+      else if (type === 'success') msg.classList.add('text-emerald-400');
+      else msg.classList.add('text-yellow-400');
+    }
+
+    toggleAuthLink.addEventListener('click', () => {
+      setMessage();
+      authForm.reset();
+      passwordGroup.style.display = 'block'; 
+      if (mode === 'login') {
+        mode = 'signup';
+        formTitle.textContent = 'Create a New Account';
+        submitBtn.textContent = 'Sign Up';
+        forgotPasswordBtn.style.display = 'none';
+        referralGroup.style.display = 'block';
+        toggleAuthLink.textContent = 'Already have an account? Login here';
+      } else {
+        mode = 'login';
+        formTitle.textContent = 'Login to FFTW';
+        submitBtn.textContent = 'Login';
+        forgotPasswordBtn.style.display = 'block';
+        referralGroup.style.display = 'none';
+        toggleAuthLink.textContent = 'New user? Sign up here';
+      }
+    });
+
+    forgotPasswordBtn.addEventListener('click', () => {
+      mode = 'reset';
+      formTitle.textContent = 'Reset Your Password';
+      submitBtn.textContent = 'Send Reset Email';
+      forgotPasswordBtn.style.display = 'none';
+      referralGroup.style.display = 'none';
+      toggleAuthLink.textContent = 'Back to Login';
+      passwordGroup.style.display = 'none';
+      setMessage();
+      authForm.reset();
+      emailInput.focus();
+    });
+
+    authForm.onsubmit = async (e) => {
+      e.preventDefault();
+      setMessage();
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const referCodeEntered = referralInput.value.trim().toUpperCase();
+
+      if (!email) return setMessage('Please enter your email.', 'error');
+      if (mode !== 'reset' && !password) return setMessage('Please enter your password.', 'error');
+
+      setLoading(true);
+
+      try {
+        if (mode === 'login') {
+          await signInWithEmailAndPassword(auth, email, password);
+          setMessage('Login successful!', 'success');
+          setTimeout(() => window.location.href = 'index.html', 1000);
+        } 
+        else if (mode === 'signup') {
+          let referrerUID = null;
+
+          // ১. রেফার কোড চেক (Firestore Rules এ read পারমিশন থাকতে হবে)
+          if (referCodeEntered) {
+            const q = query(collection(db, "users"), where("referCode", "==", referCodeEntered));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+              referrerUID = querySnapshot.docs[0].id;
+            } else {
+              setLoading(false);
+              return setMessage('Invalid Referral Code!', 'error');
+            }
+          }
+
+          // ২. ইউজার তৈরি
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+
+          // ৩. ইউনিক রেফার কোড জেনারেট (ABI458 ফরম্যাট)
+          const namePart = email.split('@')[0].substring(0, 3).toUpperCase();
+          const randomPart = Math.floor(100 + Math.random() * 900);
+          const myReferCode = namePart + randomPart;
+
+          // ৪. ডাটা সেভ
+          await setDoc(doc(db, "users", user.uid), {
+            email: user.email,
+            referCode: myReferCode,
+            referredBy: referrerUID,
+            deposit: 0,
+            winnings: 0,
+            playedMatches: 0, // প্রথম ম্যাচ বোনাস চেক করার জন্য
+            createdAt: new Date()
+          });
+
+          setMessage('Signup successful!', 'success');
+          setTimeout(() => window.location.href = 'index.html', 1000);
+        } 
+        else if (mode === 'reset') {
+          await sendPasswordResetEmail(auth, email);
+          setMessage('Reset email sent! Check inbox.', 'success');
+        }
+      } catch (err) {
+        setMessage(err.message, 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+  </script>
+</body>
+</html>

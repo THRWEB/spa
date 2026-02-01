@@ -1,0 +1,87 @@
+/* style.css - Central UI & Theme Control */
+:root {
+    --bg-dark: #0f172a;       /* পুরো বডির ব্যাকগ্রাউন্ড */
+    --orange-grad: linear-gradient(to right, #ea580c, #f97316, #fb923c); /* হেডার কালার */
+    --nav-bg: rgba(15, 23, 42, 0.98); /* ন্যাভবার ব্যাকগ্রাউন্ড */
+    --active-color: #f97316;  /* অ্যাক্টিভ আইকন কালার */
+    --header-h: 65px;         /* হেডারের উচ্চতা */
+    --nav-h: 75px;            /* ন্যাভবারের উচ্চতা */
+}
+
+/* ১. বডি স্টাইল */
+html, body { 
+    background-color: var(--bg-dark) !important; 
+    color: white !important;
+    margin: 0; padding: 0;
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+}
+
+/* ২. কন্টেন্ট যাতে হেডার বা ন্যাভের নিচে না ঢোকে */
+main, .page-content {
+    padding-top: calc(var(--header-h) + 20px) !important;
+    padding-bottom: calc(var(--nav-h) + 20px) !important;
+    display: block;
+    box-sizing: border-box;
+}
+
+/* ৩. হেডার ডিজাইন */
+header {
+    position: fixed !important;
+    top: 0; left: 0; width: 100%;
+    height: var(--header-h);
+    background: var(--orange-grad) !important;
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    display: flex; align-items: center;
+    box-sizing: border-box;
+}
+
+/* ৪. বটম ন্যাভবার ডিজাইন */
+.bottom-nav {
+    position: fixed !important;
+    bottom: 0; left: 0; width: 100%;
+    height: var(--nav-h);
+    background: var(--nav-bg) !important;
+    backdrop-filter: blur(15px);
+    display: flex; justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid rgba(249, 115, 22, 0.3);
+    z-index: 10000;
+}
+
+/* ৫. ন্যাভবার আইটেম ও আইকন সাইজ ফিক্স */
+.nav-item {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    color: #94a3b8; 
+    text-decoration: none; 
+    font-size: 11px;
+    width: 25%; /* ৪টি অপশনের জন্য সমান জায়গা */
+    transition: all 0.2s ease;
+}
+
+/* আইকনকে জোর করে ছোট করা */
+.nav-item img { 
+    width: 24px !important; 
+    height: 24px !important; 
+    min-width: 24px !important;
+    min-height: 24px !important;
+    margin-bottom: 3px; 
+    object-fit: contain; /* ছবি যাতে না চ্যাপ্টা হয় */
+    filter: brightness(0) invert(1); 
+    opacity: 0.7;
+}
+
+.nav-item.active { 
+    color: var(--active-color) !important;
+}
+
+.nav-item.active img { 
+    filter: invert(56%) sepia(86%) saturate(1638%) hue-rotate(346deg) brightness(101%) contrast(96%) !important;
+    opacity: 1;
+}
+
+/* লোডিং স্পিনার */
+#loadingSpinner { background-color: var(--bg-dark) !important; }

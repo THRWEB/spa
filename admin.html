@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FFTW - Secure Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family: 'Poppins', sans-serif; background: #020617; color: white; }
+    
+    /* UI Elements */
+    .glass { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; }
+    .tab-btn { padding: 10px 20px; border-radius: 10px; font-weight: 600; transition: 0.3s; }
+    .tab-btn.active { background: #10b981; color: white; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
+    input, select { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; padding: 12px; border-radius: 12px; outline: none; width: 100%; }
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+
+    /* Login Screen Styles */
+    #login-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #020617; z-index: 50;
+      display: flex; justify-content: center; align-items: center;
+    }
+    #admin-panel { display: none; } /* Initially Hidden */
+  </style>
+</head>
+<body class="p-4 md:p-10 min-h-screen">
+
+  <div id="login-screen">
+    <div class="glass p-8 max-w-sm w-full text-center space-y-4">
+      <div class="mb-4">
+        <h2 class="text-3xl font-bold text-emerald-500">FFTW ADMIN</h2>
+        <p class="text-slate-400 text-xs mt-1">Standalone Secure Access</p>
+      </div>
+      
+      <input type="email" id="adminEmail" placeholder="Admin Email" value="t31725@gmail.com">
+      <input type="password" id="adminPass" placeholder="Password">
+      
+      <button id="btnLogin" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold transition text-white shadow-lg shadow-emerald-500/20">
+        LOGIN TO DASHBOARD
+      </button>
+      <p id="loginError" class="text-red-500 text-xs mt-2 hidden"></p>
+    </div>
+  </div>
+
+  <div id="admin-panel" class="max-w-5xl mx-auto">
+    <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-5">
+      <div>
+        <h1 class="text-3xl font-bold text-emerald-500">Admin Dashboard</h1>
+        <p class="text-slate-400 text-sm">Control Panel</p>
+      </div>
+      <button onclick="handleLogout()" class="bg-red-500/10 text-red-500 px-5 py-2 rounded-xl border border-red-500/20 font-bold text-xs hover:bg-red-500/20 transition">LOGOUT</button>
+    </div>
+
+    <div class="flex gap-3 mb-8 bg-slate-900/50 p-2 rounded-2xl w-fit">
+      <button onclick="switchTab('match-tab')" class="tab-btn active" id="btn-match">Matches</button>
+      <button onclick="switchTab('payment-tab')" class="tab-btn" id="btn-pay">Payments</button>
+      <button onclick="switchTab('withdraw-tab')" class="tab-btn" id="btn-withdraw">Withdraw</button>
+    </div>
+
+    <div id="match-tab" class="tab-content">
+      <div class="glass p-6">
+        <h2 class="text-xl font-bold mb-5 text-emerald-400">Add New Match</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="text" id="mTitle" placeholder="Match Title">
+          <select id="mCat">
+            <option value="soloc">Solo Classic</option>
+            <option value="solocs">Solo CS</option>
+            <option value="duoc">Duo Classic</option>
+            <option value="squadc">Squad Classic</option>
+          </select>
+          <input type="number" id="mEntry" placeholder="Entry Fee (₹)">
+          <input type="number" id="mPrize" placeholder="Total Prize (₹)">
+          <input type="number" id="mSlot" placeholder="Available Slots">
+          <input type="text" id="mMap" placeholder="Map Name (Bermuda)">
+          <input type="datetime-local" id="mTime">
+          
+          <button id="pubBtn" class="bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold transition md:col-span-2 text-white">PUBLISH MATCH</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="payment-tab" class="tab-content hidden">
+      <div class="glass p-6 overflow-x-auto">
+        <h2 class="text-xl font-bold mb-5 text-sky-400">Add Money Requests</h2>
+        <table class="w-full text-left">
+          <thead class="bg-slate-800/50">
+            <tr class="text-xs uppercase text-slate-400">
+              <th class="p-4">User</th>
+              <th class="p-4">Amount</th>
+              <th class="p-4">Proof</th>
+              <th class="p-4">Action</th>
+            </tr>
+          </thead>
+          <tbody id="payBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="withdraw-tab" class="tab-content hidden">
+      <div class="glass p-6 overflow-x-auto">
+        <h2 class="text-xl font-bold mb-5 text-orange-400">Withdrawal Requests</h2>
+        <table class="w-full text-left">
+          <thead class="bg-slate-800/50">
+            <tr class="text-xs uppercase text-slate-400">
+              <th class="p-4">User</th>
+              <th class="p-4">Amount</th>
+              <th class="p-4">UPI ID</th>
+              <th class="p-4">Action</th>
+            </tr>
+          </thead>
+          <tbody id="withdrawBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    // Analytics is optional for Admin panel logic, but included as per your config
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+
+    // 🔴🔴 UPDATED FIREBASE CONFIG 🔴🔴
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtRBspf78RSBv6UhS7YG8BjdM3UcCReT8",
+      authDomain: "fir-dc7ff.firebaseapp.com",
+      projectId: "fir-dc7ff",
+      storageBucket: "fir-dc7ff.firebasestorage.app",
+      messagingSenderId: "993356367302",
+      appId: "1:993356367302:web:726c91c76dc030df73dec7",
+      measurementId: "G-9KS20RLBXJ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const analytics = getAnalytics(app);
+
+    // --- SECURITY & ISOLATION CONFIG ---
+    const TARGET_ADMIN = "t31725@gmail.com"; 
+
+    // Session Persistence: Tab বন্ধ করলেই লগআউট হয়ে যাবে (মেইন অ্যাপের সাথে মিশবে না)
+    setPersistence(auth, browserSessionPersistence)
+      .then(() => {
+        // Persistence Set
+      })
+      .catch((error) => {
+        console.error("Persistence Error", error);
+      });
+
+    // --- AUTH LOGIC ---
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (user.email === TARGET_ADMIN) {
+          // সঠিক অ্যাডমিন
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('admin-panel').style.display = 'block';
+          initAdminData(); // ডাটা লোড শুরু
+        } else {
+          // অন্য ইউজার (ভুল করে ঢুকেছে) -> লগআউট করে দাও
+          signOut(auth).then(() => {
+            alert("Access Denied: You are not the Admin.");
+            window.location.reload();
+          });
+        }
+      } else {
+        // লগইন নেই
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('admin-panel').style.display = 'none';
+      }
+    });
+
+    // Login Button
+    document.getElementById('btnLogin').onclick = async () => {
+      const email = document.getElementById('adminEmail').value;
+      const pass = document.getElementById('adminPass').value;
+      const errorMsg = document.getElementById('loginError');
+      const btn = document.getElementById('btnLogin');
+
+      errorMsg.classList.add('hidden');
+
+      if (email !== TARGET_ADMIN) {
+        errorMsg.innerText = "Invalid Admin Email";
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        btn.innerText = "Verifying...";
+        await signInWithEmailAndPassword(auth, email, pass);
+        // Successful login will trigger onAuthStateChanged
+      } catch (error) {
+        console.error(error);
+        btn.innerText = "LOGIN TO DASHBOARD";
+        errorMsg.innerText = "Wrong Password or Network Error";
+        errorMsg.classList.remove('hidden');
+      }
+    };
+
+    // Logout Function
+    window.handleLogout = () => {
+      signOut(auth).then(() => window.location.reload());
+    };
+
+
+    // --- ADMIN PANEL FUNCTIONALITY ---
+    function initAdminData() {
+        console.log("Admin Data Loading...");
+
+        // Matches Publish
+        document.getElementById('pubBtn').onclick = async () => {
+          const timeInput = document.getElementById('mTime').value;
+          const timestamp = timeInput ? new Date(timeInput) : new Date();
+
+          const data = {
+            title: document.getElementById('mTitle').value,
+            category: document.getElementById('mCat').value,
+            entry: document.getElementById('mEntry').value,
+            prize: document.getElementById('mPrize').value,
+            slot: document.getElementById('mSlot').value,
+            map: document.getElementById('mMap').value,
+            time: timestamp,
+            image: "https://i.postimg.cc/rsf7yB1M/1768308154801.jpg"
+          };
+          
+          try {
+            await addDoc(collection(db, "allMatches"), data);
+            alert("Match Published Successfully!");
+          } catch (e) {
+            console.error(e);
+            alert("Error: " + e.message);
+          }
+        };
+
+        // Tab Switching
+        window.switchTab = (id) => {
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.getElementById(id).classList.remove('hidden');
+          event.target.classList.add('active');
+        };
+
+        // Real-time Deposits
+        onSnapshot(collection(db, "addMoneyRequests"), (s) => {
+          const body = document.getElementById('payBody'); body.innerHTML = '';
+          s.forEach(d => {
+            const r = d.data();
+            body.innerHTML += `<tr class="border-b border-slate-800 text-sm">
+              <td class="p-4">${r.email}</td>
+              <td class="p-4 text-emerald-400 font-bold">₹${r.amount}</td>
+              <td class="p-4"><a href="${r.proofUrl}" target="_blank" class="text-sky-400 underline">View</a></td>
+              <td class="p-4 flex gap-2">
+                <button onclick="approveDep('${d.id}', '${r.uid}', ${r.amount})" class="bg-emerald-600 px-3 py-1 rounded hover:bg-emerald-500">Yes</button>
+                <button onclick="delDoc('addMoneyRequests','${d.id}')" class="bg-red-600/20 text-red-500 px-3 py-1 rounded hover:bg-red-600/30">No</button>
+              </td></tr>`;
+          });
+        });
+
+        // Real-time Withdrawals
+        onSnapshot(collection(db, "withdrawalRequests"), (s) => {
+          const body = document.getElementById('withdrawBody'); body.innerHTML = '';
+          s.forEach(d => {
+            const r = d.data();
+            body.innerHTML += `<tr class="border-b border-slate-800 text-sm">
+              <td class="p-4">${r.email}</td>
+              <td class="p-4 text-orange-400 font-bold">₹${r.amount}</td>
+              <td class="p-4 text-xs">${r.upi}</td>
+              <td class="p-4">
+                <button onclick="delDoc('withdrawalRequests','${d.id}')" class="bg-orange-600 px-3 py-1 rounded hover:bg-orange-500">Paid/Done</button>
+              </td></tr>`;
+          });
+        });
+
+        window.approveDep = async (id, uid, amt) => {
+          try {
+            const ref = doc(db, "users", uid);
+            const s = await getDoc(ref);
+            if(s.exists()){
+              await updateDoc(ref, { deposit: (Number(s.data().deposit || 0) + Number(amt)) });
+              await deleteDoc(doc(db, "addMoneyRequests", id));
+              alert("Deposit Approved!");
+            }
+          } catch(err) { alert("Error approving: " + err.message); }
+        };
+
+        window.delDoc = async (col, id) => { 
+          if(confirm("Are you sure you want to delete this request?")) {
+             await deleteDoc(doc(db, col, id));
+          }
+        };
+    }
+  </script>
+</body>
+</html>

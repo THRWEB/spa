@@ -10,14 +10,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
   
   <style>
-    /* তোমার কার্ড আর ব্যানারের ডিজাইনগুলো এখানে থাকবে যাতে সব পেজেই সাপোর্ট করে */
     .es-main-section { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 1.3rem; box-shadow: 0 8px 32px rgba(0,0,0,0.4); border-left: 7px solid #ea580c; margin-bottom: 1rem; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
     .es-main-section:active { transform: scale(0.95); }
     .duo-section { border-left-color: #0ea5e9 !important; }
     .squad-section { border-left-color: #fbbf24 !important; }
-    #cardsGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 480px; margin: 1.5rem auto; }
+    #cardsGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 480px; margin: 0 auto; padding-top: 1rem; }
     .promo-banner { width: 100%; border-radius: 1rem; overflow: hidden; margin-bottom: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    
+    /* লোডার অ্যানিমেশন */
     @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* স্ক্রলবার হাইড করা */
+    body::-webkit-scrollbar { display: none; }
+    body { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 
@@ -34,18 +39,18 @@
     </div>
   </header>
 
-  <div id="router-loader" class="fixed top-[60px] bottom-[70px] left-0 right-0 z-[500] bg-[#0f172a] flex items-center justify-center transition-opacity duration-300">
-      <div style="width:45px; height:45px; border:4px solid rgba(16,185,129,0.1); border-top-color:#10b981; border-radius:50%; animation:spin 1s linear infinite;"></div>
+  <div id="router-loader" class="fixed inset-0 z-[500] bg-[#0f172a] flex items-center justify-center transition-opacity duration-300">
+      <div style="width:40px; height:40px; border:3px solid rgba(16,185,129,0.1); border-top-color:#10b981; border-radius:50%; animation:spin 1s linear infinite;"></div>
   </div>
 
-  <main id="app-outlet" class="pt-[75px] pb-[85px]">
+  <main id="app-outlet" class="pt-[70px] pb-[80px] min-h-screen">
       </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5">
-    <button onclick="router.navigate('home')" class="opacity-100"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-6"></button>
-    <button onclick="router.navigate('mymatches')" class="opacity-50"><img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-6"></button>
-    <button onclick="router.navigate('refer')" class="opacity-50"><img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-6"></button>
-    <button onclick="router.navigate('profile')" class="opacity-50"><img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-6"></button>
+  <nav class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 shadow-[0_-5px_20px_rgba(0,0,0,0.3)]">
+    <button onclick="router.navigate('home')" class="nav-btn transition-all duration-300"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-6"></button>
+    <button onclick="router.navigate('mymatches')" class="nav-btn transition-all duration-300 opacity-50"><img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-6"></button>
+    <button onclick="router.navigate('refer')" class="nav-btn transition-all duration-300 opacity-50"><img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-6"></button>
+    <button onclick="router.navigate('profile')" class="nav-btn transition-all duration-300 opacity-50"><img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-6"></button>
   </nav>
 
   <script type="module" src="app-ui.js"></script>

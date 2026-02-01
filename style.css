@@ -1,14 +1,14 @@
-/* style.css - Central UI & Theme Control (Crimson Red Edition) */
+/* style.css - Central UI & Theme Control (Emerald & Gold Edition) */
 :root {
-    /* একদম ডার্ক ব্যাকগ্রাউন্ড - পিওর ব্ল্যাকের খুব কাছাকাছি */
-    --bg-dark: #0a0a0b;       
+    /* ডার্ক ব্যাকগ্রাউন্ড - গভীর চারকোল ব্ল্যাক */
+    --bg-dark: #05070a;       
     
-    /* পাওয়ারফুল রেড গ্রাডিয়েন্ট */
-    --accent-grad: linear-gradient(135deg, #dc2626, #991b1b); 
+    /* লাক্সারি গোল্ডেন গ্রাডিয়েন্ট (বাটন ও হাইলাইটের জন্য) */
+    --accent-grad: linear-gradient(135deg, #fbbf24, #d97706); 
     
     /* বটম ন্যাভবার ডিজাইন */
-    --nav-bg: rgba(10, 10, 11, 0.98); 
-    --active-color: #ef4444;  /* উজ্জ্বল লাল একটিভ আইটেমের জন্য */
+    --nav-bg: rgba(5, 7, 10, 0.98); 
+    --active-color: #10b981;  /* উজ্জ্বল এমারেল্ড গ্রিন একটিভ আইটেমের জন্য */
     
     --header-h: 55px;         
     --nav-h: 65px;            
@@ -24,7 +24,7 @@
 
 html, body { 
     background-color: var(--bg-dark) !important; 
-    color: #ffffff !important;
+    color: #f8fafc !important;
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
@@ -38,20 +38,20 @@ main, .page-content {
     width: 100%;
 }
 
-/* ৩. হেডার ডিজাইন - রেড বর্ডার ও শ্যাডো */
+/* ৩. হেডার ডিজাইন - ডার্ক লুক উইথ গোল্ডেন টাচ */
 header {
     position: fixed !important;
     top: 0; left: 0; width: 100%;
     height: var(--header-h);
-    background: #0f0f10 !important;
-    border-bottom: 2px solid #450a0a; /* ডার্ক রেড বর্ডার */
+    background: #0a0f16 !important;
+    border-bottom: 2px solid #1e293b; 
     z-index: 10000;
     display: flex; align-items: center;
     padding: 0 15px;
-    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.15);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1); /* হালকা গ্রিন গ্লো */
 }
 
-/* ৪. বটম ন্যাভবার ডিজাইন */
+/* ৪. বটম ন্যাভবার ডিজাইন - রাউন্ডেড স্টাইল */
 .bottom-nav {
     position: fixed !important;
     bottom: 0; left: 0; width: 100%;
@@ -60,10 +60,10 @@ header {
     backdrop-filter: blur(25px);
     display: flex; justify-content: space-around;
     align-items: center;
-    border-top: 1px solid rgba(220, 38, 38, 0.3);
+    border-top: 1px solid rgba(16, 185, 129, 0.2);
     z-index: 10000;
     padding-bottom: 8px;
-    border-radius: 25px 25px 0 0; /* মডার্ন রাউন্ডেড লুক */
+    border-radius: 20px 20px 0 0;
 }
 
 /* ৫. ন্যাভবার আইটেম ও আইকন */
@@ -71,12 +71,12 @@ header {
     display: flex; 
     flex-direction: column; 
     align-items: center;
-    color: #71717a; 
+    color: #475569; 
     text-decoration: none; 
     font-size: 10px;
-    font-weight: 800;
+    font-weight: 700;
     text-transform: uppercase;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s ease;
 }
 
 .nav-item img { 
@@ -84,32 +84,32 @@ header {
     height: 24px !important; 
     margin-bottom: 4px; 
     object-fit: contain;
-    filter: brightness(0) invert(0.4); /* ইন-একটিভ আইকন */
-    opacity: 0.6;
+    filter: grayscale(1) opacity(0.5);
 }
 
 .nav-item.active { 
     color: var(--active-color) !important;
-    transform: translateY(-5px); /* একটু ওপরে উঠে থাকবে */
+    transform: scale(1.1);
 }
 
 .nav-item.active img { 
     filter: none !important; 
     opacity: 1;
-    filter: drop-shadow(0 0 8px var(--active-color)) !important;
+    filter: drop-shadow(0 0 5px var(--active-color)) !important;
 }
 
-/* ৬. গ্লোয়িং বাটন বা কার্ড হাইলাইট */
+/* ৬. গোল্ডেন বাটন (পুরস্কার বা ম্যাচ ডিটেইলস এর জন্য) */
 .btn-premium {
     background: var(--accent-grad);
-    box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
+    box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
     border: none;
-    color: white;
-    font-weight: bold;
+    color: #000; /* গোল্ডেন ব্যাকগ্রাউন্ডে কালো লেখা ভালো লাগে */
+    font-weight: 900;
     border-radius: 12px;
 }
 
-/* লোডিং স্পিনার */
-#loadingSpinner { 
-    background-color: var(--bg-dark) !important; 
+/* কার্ড ডিজাইন হাইলাইট (এমারেল্ড বর্ডার) */
+.card-highlight {
+    border-left: 4px solid var(--active-color);
+    background: #0f172a;
 }

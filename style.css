@@ -4,11 +4,11 @@
     --orange-grad: linear-gradient(to right, #ea580c, #f97316, #fb923c); 
     --nav-bg: rgba(15, 23, 42, 0.98); 
     --active-color: #f97316;  
-    --header-h: 65px;         
-    --nav-h: 75px;            
+    --header-h: 60px; /* হাইট কিছুটা কমিয়ে ফিক্সড করা হলো */
+    --nav-h: 70px;            
 }
 
-/* ১. ইউনিভার্সাল রিসেট - এটি গ্যাপ কমানোর মূল চাবিকাঠি */
+/* ১. ইউনিভার্সাল রিসেট - মার্জিন কোলাপ্স বন্ধ করতে */
 * {
     margin: 0;
     padding: 0;
@@ -18,7 +18,6 @@
 html, body { 
     background-color: var(--bg-dark) !important; 
     color: white !important;
-    margin: 0; padding: 0;
     font-family: 'Poppins', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
@@ -26,45 +25,52 @@ html, body {
 
 /* ২. কন্টেন্ট এরিয়া - গ্যাপ রিমুভ ট্রিক */
 main, .page-content {
-    /* প্যাডিং কমিয়ে দিলাম যাতে কন্টেন্ট হেডারের কাছাকাছি থাকে */
-    padding-top: calc(var(--header-h) - 5px) !important;
-    padding-bottom: calc(var(--nav-h) - 10px) !important;
+    /* ঠিক হেডারের সমান প্যাডিং দেওয়া হলো যাতে কন্টেন্ট নিচে না নামে */
+    padding-top: var(--header-h) !important; 
+    padding-bottom: var(--nav-h) !important;
+    margin: 0 !important;
     display: block;
     width: 100%;
 }
 
-/* ভেতরের প্রথম এলিমেন্টের মার্জিন জিরো করা */
+/* ৩. কন্টেন্টের প্রথম এলিমেন্টের কোনো বাড়তি মার্জিন থাকবে না */
 main > *:first-child, .page-content > *:first-child {
     margin-top: 0 !important;
+    padding-top: 15px; /* এখানে আপনি প্রয়োজনমতো অল্প গ্যাপ রাখতে পারেন */
 }
 
-/* ৩. হেডার ডিজাইন */
+/* ৪. হেডার ডিজাইন */
 header {
     position: fixed !important;
-    top: 0; left: 0; width: 100%;
+    top: 0; 
+    left: 0; 
+    width: 100%;
     height: var(--header-h);
     background: var(--orange-grad) !important;
     z-index: 10000;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-    display: flex; align-items: center;
-    box-sizing: border-box;
-    padding: 0 15px; /* লোগো বা টাইটেল সাইডে চাপানোর জন্য */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    display: flex; 
+    align-items: center;
+    padding: 0 15px;
 }
 
-/* ৪. বটম ন্যাভবার ডিজাইন */
+/* ৫. বটম ন্যাভবার ডিজাইন */
 .bottom-nav {
     position: fixed !important;
-    bottom: 0; left: 0; width: 100%;
+    bottom: 0; 
+    left: 0; 
+    width: 100%;
     height: var(--nav-h);
     background: var(--nav-bg) !important;
     backdrop-filter: blur(15px);
-    display: flex; justify-content: space-around;
+    display: flex; 
+    justify-content: space-around;
     align-items: center;
-    border-top: 1px solid rgba(249, 115, 22, 0.3);
+    border-top: 1px solid rgba(249, 115, 22, 0.2);
     z-index: 10000;
 }
 
-/* ৫. ন্যাভবার আইটেম ও আইকন */
+/* ৬. ন্যাভবার আইটেম ও আইকন */
 .nav-item {
     display: flex; 
     flex-direction: column; 
@@ -95,4 +101,6 @@ header {
 }
 
 /* লোডিং স্পিনার */
-#loadingSpinner { background-color: var(--bg-dark) !important; }
+#loadingSpinner { 
+    background-color: var(--bg-dark) !important; 
+}

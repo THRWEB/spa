@@ -10,166 +10,214 @@
   
   <style>
     /* -----------------------------------------------------------
-       MERGED CSS FROM style.css
+       CORE VARIABLES & RESET
     ----------------------------------------------------------- */
     :root {
-        /* ডার্ক ব্যাকগ্রাউন্ড */
         --bg-dark: #05070a;       
-        
-        /* লাক্সারি গোল্ডেন গ্রাডিয়েন্ট */
         --accent-grad: linear-gradient(135deg, #fbbf24, #d97706); 
-        
-        /* বটম ন্যাভবার ডিজাইন */
         --nav-bg: rgba(5, 7, 10, 0.98); 
         --active-color: #10b981; 
         
-        /* Height calculation */
-        --header-h: 30px;         
-        --nav-h: 30px;            
+        /* FIXED HEIGHTS: 30px was too small, adjusted to standard mobile size */
+        --header-h: 60px;         
+        --nav-h: 70px;            
     }
 
-    /* ১. ইউনিভার্সাল রিসেট */
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
         -webkit-tap-highlight-color: transparent;
+        outline: none;
     }
 
     html, body { 
         background-color: var(--bg-dark) !important; 
         color: #f8fafc !important;
         font-family: 'Poppins', sans-serif;
-        min-height: 100%;
-        /* Scroll fix */
+        height: 100%;
+        width: 100%;
         overflow-x: hidden;
         overflow-y: auto; 
-        display: flex;
-        flex-direction: column;
-        -webkit-overflow-scrolling: touch; /* Mobile smooth scroll */
     }
 
-    /* ২. কন্টেন্ট এরিয়া - Scroll Fix */
-    main, .page-content {
-        padding-top: calc(var(--header-h) + 10px) !important;
+    /* -----------------------------------------------------------
+       LAYOUT & SCROLLING
+    ----------------------------------------------------------- */
+    main#app-outlet {
+        padding-top: calc(var(--header-h) + 20px) !important;
         padding-bottom: calc(var(--nav-h) + 20px) !important;
-        display: block;
+        min-height: 100vh;
         width: 100%;
-        flex: 1 0 auto; /* Content jate flexible thake */
+        display: block;
+        position: relative;
+        z-index: 1;
     }
 
-    /* ৩. হেডার ডিজাইন */
+    /* -----------------------------------------------------------
+       HEADER STYLES
+    ----------------------------------------------------------- */
     header {
         position: fixed !important;
-        top: 0; left: 0; width: 100%;
+        top: 0; left: 0; right: 0;
         height: var(--header-h);
         background: #0a0f16 !important;
-        border-bottom: 2px solid #1e293b; 
-        z-index: 10000;
+        border-bottom: 1px solid rgba(255,255,255,0.05); 
+        z-index: 500;
         display: flex; align-items: center;
-        padding: 0 15px;
-        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+        padding: 0 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
 
-    /* ৪. বটম ন্যাভবার ডিজাইন */
+    /* -----------------------------------------------------------
+       BOTTOM NAVIGATION STYLES
+    ----------------------------------------------------------- */
     .bottom-nav {
         position: fixed !important;
-        bottom: 0; left: 0; width: 100%;
+        bottom: 0; left: 0; right: 0;
         height: var(--nav-h);
         background: var(--nav-bg) !important;
-        backdrop-filter: blur(25px);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         display: flex; justify-content: space-around;
         align-items: center;
-        border-top: 1px solid rgba(16, 185, 129, 0.2);
-        z-index: 10000;
-        padding-bottom: 10px; /* Mobile safe area padding */
+        border-top: 1px solid rgba(255,255,255,0.05);
+        z-index: 500;
+        padding-bottom: 10px; 
         border-radius: 20px 20px 0 0;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
     }
 
-    /* ৫. ন্যাভবার আইটেম ও আইকন */
     .nav-item {
         display: flex; 
         flex-direction: column; 
         align-items: center;
-        color: #475569; 
-        text-decoration: none; 
+        justify-content: center;
+        color: #64748b; 
+        background: transparent;
+        border: none;
+        cursor: pointer;
         font-size: 10px;
-        font-weight: 700;
-        text-transform: uppercase;
-        transition: all 0.3s ease;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease;
+        width: 100%;
+        height: 100%;
     }
 
     .nav-item img { 
-        width: 24px !important; 
-        height: 24px !important; 
-        margin-bottom: 4px; 
+        width: 22px !important; 
+        height: 22px !important; 
+        margin-bottom: 6px; 
         object-fit: contain;
-        filter: grayscale(1) opacity(0.5);
+        filter: grayscale(1) opacity(0.6);
+        transition: all 0.3s ease;
     }
 
+    /* Active State */
     .nav-item.active { 
         color: var(--active-color) !important;
-        transform: scale(1.1);
     }
-
     .nav-item.active img { 
         filter: none !important; 
         opacity: 1;
-        filter: drop-shadow(0 0 5px var(--active-color)) !important;
-    }
-
-    /* ৬. গোল্ডেন বাটন */
-    .btn-premium {
-        background: var(--accent-grad);
-        box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
-        border: none;
-        color: #000;
-        font-weight: 900;
-        padding: 10px 20px;
-        border-radius: 12px;
-    }
-
-    /* ৭. কার্ড ডিজাইন হাইলাইট */
-    .card-highlight {
-        border-left: 4px solid var(--active-color);
-        background: #0f172a;
-        padding: 15px;
-        margin-bottom: 10px;
+        transform: translateY(-2px);
+        filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4)) !important;
     }
 
     /* -----------------------------------------------------------
-       INLINE CSS FROM HTML
+       LOADER / SPINNER STYLES (ADDED MISSING CSS)
     ----------------------------------------------------------- */
-    /* লোডার যেন সবার উপরে থাকে (প্রয়োজনে z-index বাড়ানো যেতে পারে কারণ হেডার 10000) */
-    #router-loader { z-index: 20000; } 
+    #router-loader {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: var(--bg-dark);
+        z-index: 9999; /* Highest Z-Index */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .energy-core {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .core-outer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 4px solid transparent;
+        border-top-color: #10b981; /* Emerald */
+        border-right-color: #10b981;
+        border-radius: 50%;
+        animation: spin 1.5s linear infinite;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+    }
+
+    .core-inner {
+        position: absolute;
+        width: 60%;
+        height: 60%;
+        border: 4px solid transparent;
+        border-bottom-color: #fbbf24; /* Gold */
+        border-left-color: #fbbf24;
+        border-radius: 50%;
+        animation: spin-reverse 1.2s linear infinite;
+    }
+
+    .core-center {
+        width: 20%;
+        height: 20%;
+        background-color: #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 20px #fff, 0 0 40px #10b981;
+        animation: pulse-core 1s ease-in-out infinite alternate;
+    }
+
+    /* Keyframes */
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes spin-reverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+    @keyframes pulse-core { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(1.2); opacity: 1; } }
+
   </style>
 </head>
 
-<body class="bg-[#0f172a] text-white">
+<body class="bg-[#0f172a]">
 
-  <header class="fixed top-0 left-0 right-0 h-[60px] z-[1000] bg-[#0f172a] border-b border-white/5 flex items-center px-4">
+  <header>
     <div class="flex items-center justify-between w-full">
-      <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-9 h-9 rounded-full border-2 border-emerald-500 object-cover">
-      <h1 class="text-lg font-black tracking-widest uppercase text-white">FFTW</h1>
+      <div class="flex items-center gap-3">
+          <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-9 h-9 rounded-full border-2 border-emerald-500 object-cover shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+          <h1 class="text-lg font-black tracking-widest uppercase text-white drop-shadow-md">FFTW</h1>
+      </div>
       
-      <div id="walletDisplay" onclick="handleNavClick(null, 'wallet')" class="bg-white/10 px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2 cursor-pointer active:scale-95 transition-transform">
-        <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-4 invert">
-        <span id="nav-wallet-amount" class="text-sm font-bold">₹...</span>
+      <div id="walletDisplay" onclick="handleNavClick(null, 'wallet')" class="bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2 cursor-pointer active:scale-95 transition-all">
+        <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-4 h-4 invert opacity-80">
+        <span id="nav-wallet-amount" class="text-sm font-bold text-emerald-400">₹...</span>
       </div>
     </div>
   </header>
 
-  <div id="router-loader" class="fixed inset-0 bg-[#0f172a] flex flex-col items-center justify-center transition-opacity duration-300">
+  <div id="router-loader">
       <div class="energy-core">
           <div class="core-outer"></div>
           <div class="core-inner"></div>
           <div class="core-center"></div>
       </div>
-      <p class="mt-10 text-[10px] font-bold tracking-[0.4em] text-gray-400 uppercase animate-pulse">Loading..</p>
+      <p class="mt-8 text-[10px] font-bold tracking-[0.4em] text-emerald-500/80 uppercase animate-pulse">Loading System</p>
   </div>
 
   <main id="app-outlet">
-      </main>
+      <div class="p-5 text-center text-gray-500 text-xs mt-10">
+          Waiting for App UI...
+      </div>
+  </main>
 
   <nav class="bottom-nav">
     
@@ -196,34 +244,41 @@
   </nav>
 
   <script>
-    // 1. ক্লিক হ্যান্ডলার ফাংশন
+    // ----------------------------------------------------
+    // UI LOGIC
+    // ----------------------------------------------------
+    
+    // 1. Navigation Handler
     function handleNavClick(element, routeName) {
-        // যদি এটি ন্যাভবারের বাটন হয়, তাহলে কালার চেঞ্জ লজিক রান করবে
+        // UI Update: Active Class Change
         if (element) {
-            // সব বাটন থেকে active ক্লাস সরিয়ে ফেলা
-            document.querySelectorAll('.nav-item').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // যেটাতে ক্লিক করা হয়েছে সেটাতে active ক্লাস যোগ করা
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
         }
 
-        // রাউটার নেভিগেশন কল করা (যদি আপনার app-ui.js এ থাকে)
+        // Router Integration
         if (typeof router !== 'undefined' && router.navigate) {
             router.navigate(routeName);
         } else {
-            console.log("Navigating to:", routeName);
+            console.log("Mock Navigation to:", routeName);
+            // Flash prevention: If no router, just log, don't reload.
         }
     }
 
-    // লোডার লুকানোর জন্য ছোট স্ক্রিপ্ট (ডেমো পারপাস)
+    // 2. Loader Logic
     window.addEventListener('load', () => {
+        const loader = document.getElementById('router-loader');
+        
+        // Ensure loader stays for at least 1.5s to show animation
         setTimeout(() => {
-            const loader = document.getElementById('router-loader');
             if(loader) {
+                loader.style.transition = 'opacity 0.5s ease';
                 loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 300);
+                
+                // Remove from DOM after fade out
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
             }
         }, 1500);
     });

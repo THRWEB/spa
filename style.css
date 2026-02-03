@@ -1,18 +1,12 @@
-/* style.css - Central UI & Theme Control (Emerald & Gold Edition) */
+/* style.css - Central UI & Theme Control */
 :root {
-    /* ডার্ক ব্যাকগ্রাউন্ড */
-    --bg-dark: #05070a;       
-    
-    /* লাক্সারি গোল্ডেন গ্রাডিয়েন্ট */
+    --bg-dark: #0f172a;       
     --accent-grad: linear-gradient(135deg, #fbbf24, #d97706); 
-    
-    /* বটম ন্যাভবার ডিজাইন */
-    --nav-bg: rgba(5, 7, 10, 0.98); 
-    --active-color: #10b981; 
-    
-    /* Height calculation thik kora hoyeche */
-    --header-h: 30px;         
-    --nav-h: 30px;            
+    --nav-bg: #1e293b; 
+    --active-blue: #3b82f6; /* Blue Color for Active State */
+    --text-muted: #94a3b8;  /* Grayish White for Text */
+    --header-h: 60px;         
+    --nav-h: 70px;            
 }
 
 /* ১. ইউনিভার্সাল রিসেট */
@@ -28,84 +22,89 @@ html, body {
     color: #f8fafc !important;
     font-family: 'Poppins', sans-serif;
     min-height: 100%;
-    /* Scroll fix korar jonno nicher line gulo important */
     overflow-x: hidden;
     overflow-y: auto; 
     display: flex;
     flex-direction: column;
-    -webkit-overflow-scrolling: touch; /* Mobile smooth scroll */
 }
 
-/* ২. কন্টেন্ট এরিয়া - Scroll Fix */
+/* ২. ন্যাভবার বাটন স্টাইলিং (User Requirement) */
+
+/* বাটন কন্টেইনার */
+.nav-btn {
+    transition: transform 0.2s ease, opacity 0.3s ease;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 5px 0;
+}
+
+/* একটিভ বাটনে ক্লিক ইফেক্ট */
+.nav-btn:active {
+    transform: scale(0.95);
+}
+
+/* টেক্সট স্টাইল (সবসময় একই থাকবে) */
+.nav-text {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--text-muted); /* সাদা-ধূসর টেক্সট */
+    transition: color 0.3s ease;
+}
+
+/* আইকন স্টাইল (ডিফল্ট অবস্থা - Bg color + white mix) */
+.nav-icon {
+    width: 22px;
+    height: 22px;
+    margin-bottom: 2px;
+    /* এই ফিল্টারটি আইকনকে সাদাটে-ধূসর (Grayish) করে দেয় */
+    filter: brightness(0) saturate(100%) invert(80%) sepia(5%) saturate(500%) hue-rotate(200deg) brightness(90%) contrast(85%);
+    transition: filter 0.3s ease;
+}
+
+/* --------------------------------------------------- */
+/* ACTIVE STATE (যখন ক্লিক করা হবে) */
+/* --------------------------------------------------- */
+
+/* যখন একটিভ হবে তখন আইকন নীল (Blue) হয়ে যাবে */
+.nav-btn.active .nav-icon {
+    /* এই ম্যাজিক ফিল্টারটি কালো/ধূসর আইকনকে নীল রঙে (#3b82f6) পরিবর্তন করে */
+    filter: brightness(0) saturate(100%) invert(46%) sepia(95%) saturate(3668%) hue-rotate(202deg) brightness(101%) contrast(99%);
+    
+    /* একটু গ্লো এফেক্ট */
+    filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.5)); 
+}
+
+/* একটিভ অবস্থায় টেক্সট একটু উজ্জ্বল হবে (ঐচ্ছিক, চাইলে রিমুভ করতে পারেন) */
+.nav-btn.active .nav-text {
+    color: #ffffff; /* টেক্সট পুরোপুরি সাদা হবে */
+    font-weight: 700;
+}
+
+/* --------------------------------------------------- */
+/* বাকি স্টাইল (আপনার আগের কোড থেকে রাখা হয়েছে) */
+/* --------------------------------------------------- */
+
 main, .page-content {
     padding-top: calc(var(--header-h) + 10px) !important;
-    padding-bottom: calc(var(--nav-h) + 20px) !important;
-    display: block;
+    padding-bottom: calc(var(--nav-h) + 10px) !important;
     width: 100%;
-    flex: 1 0 auto; /* Content jate flexible thake */
+    flex: 1 0 auto;
 }
 
-/* ৩. হেডার ডিজাইন */
-header {
-    position: fixed !important;
-    top: 0; left: 0; width: 100%;
-    height: var(--header-h);
-    background: #0a0f16 !important;
-    border-bottom: 2px solid #1e293b; 
-    z-index: 10000;
-    display: flex; align-items: center;
-    padding: 0 15px;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+/* কার্ড স্টাইল */
+.es-main-section { 
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%); 
+    border-radius: 1rem; 
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4); 
+    border-left: 6px solid #ea580c; 
+    margin-bottom: 1rem; 
+    cursor: pointer; 
+    width: 100%;
 }
 
-/* ৪. বটম ন্যাভবার ডিজাইন */
-.bottom-nav {
-    position: fixed !important;
-    bottom: 0; left: 0; width: 100%;
-    height: var(--nav-h);
-    background: var(--nav-bg) !important;
-    backdrop-filter: blur(25px);
-    display: flex; justify-content: space-around;
-    align-items: center;
-    border-top: 1px solid rgba(16, 185, 129, 0.2);
-    z-index: 10000;
-    padding-bottom: 10px; /* Mobile safe area padding */
-    border-radius: 20px 20px 0 0;
-}
-
-/* ৫. ন্যাভবার আইটেম ও আইকন */
-.nav-item {
-    display: flex; 
-    flex-direction: column; 
-    align-items: center;
-    color: #475569; 
-    text-decoration: none; 
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
-}
-
-.nav-item img { 
-    width: 24px !important; 
-    height: 24px !important; 
-    margin-bottom: 4px; 
-    object-fit: contain;
-    filter: grayscale(1) opacity(0.5);
-}
-
-.nav-item.active { 
-    color: var(--active-color) !important;
-    transform: scale(1.1);
-}
-
-.nav-item.active img { 
-    filter: none !important; 
-    opacity: 1;
-    filter: drop-shadow(0 0 5px var(--active-color)) !important;
-}
-
-/* ৬. গোল্ডেন বাটন */
+/* গোল্ডেন বাটন */
 .btn-premium {
     background: var(--accent-grad);
     box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
@@ -114,12 +113,4 @@ header {
     font-weight: 900;
     padding: 10px 20px;
     border-radius: 12px;
-}
-
-/* ৭. কার্ড ডিজাইন হাইলাইট */
-.card-highlight {
-    border-left: 4px solid var(--active-color);
-    background: #0f172a;
-    padding: 15px;
-    margin-bottom: 10px;
 }

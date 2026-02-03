@@ -6,12 +6,11 @@
   <title>FFTW</title>
   
   <link rel="stylesheet" href="style.css">
-  
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
   
   <style>
-    /* লোডার এবং বেসিক লেআউট ফিক্স (বাকি সব style.css এ আছে) */
+    /* ১. ইউনিভার্সাল চওড়া সেটআপ */
     html, body {
         height: 100%;
         width: 100vw !important;
@@ -24,10 +23,39 @@
         font-family: 'Poppins', sans-serif;
     }
 
+    /* ২. কন্টেন্ট এরিয়া চওড়া করা */
     #app-outlet {
         width: 100% !important;
+        max-width: none !important;
         display: block;
         min-height: calc(100vh - 130px);
+    }
+
+    /* ৩. কার্ড গ্রিড ডিসপ্লে অনুযায়ী চওড়া */
+    #cardsGrid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 1rem; 
+        width: 100% !important; 
+        margin: 0; 
+        padding: 0px 10px !important;
+    }
+
+    .es-main-section { 
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%); 
+        border-radius: 1rem; 
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4); 
+        border-left: 6px solid #ea580c; 
+        margin-bottom: 1rem; 
+        cursor: pointer; 
+        width: 100%;
+    }
+
+    .promo-banner { 
+        width: 100%; 
+        border-radius: 1rem; 
+        overflow: hidden; 
+        margin-bottom: 1.5rem; 
     }
     
     /* লোডার অ্যানিমেশন */
@@ -40,23 +68,26 @@
     @keyframes core-pulse { from { transform: scale(0.8); opacity: 0.6; } to { transform: scale(1.3); opacity: 1; } }
 
     body::-webkit-scrollbar { display: none; }
+    
+    /* Nav Button Active State override if needed */
+    .nav-btn:active { transform: scale(0.95); }
   </style>
 </head>
 
 <body class="bg-[#0f172a] text-white">
 
-  <header class="fixed top-0 left-0 right-0 h-[60px] z-[1000] bg-[#0f172a] border-b border-white/5 flex items-center px-4 shadow-lg">
+  <header class="fixed top-0 left-0 right-0 h-[60px] z-[1000] bg-[#0f172a] border-b border-white/5 flex items-center px-4">
     <div class="flex items-center justify-between w-full">
       <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-9 h-9 rounded-full border-2 border-emerald-500 object-cover">
       <h1 class="text-lg font-black tracking-widest uppercase">FFTW</h1>
-      <div id="walletDisplay" onclick="router.navigate('wallet')" class="bg-white/10 px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2 cursor-pointer">
+      <div id="walletDisplay" onclick="router.navigate('wallet')" class="bg-white/10 px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2">
         <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-4 invert">
         <span id="nav-wallet-amount" class="text-sm font-bold">₹...</span>
       </div>
     </div>
   </header>
 
-  <div id="router-loader" class="fixed inset-0 z-[500] bg-[#0f172a] flex flex-col items-center justify-center transition-opacity duration-300 hidden">
+  <div id="router-loader" class="fixed inset-0 z-[500] bg-[#0f172a] flex flex-col items-center justify-center transition-opacity duration-300">
       <div class="energy-core">
           <div class="core-outer"></div>
           <div class="core-inner"></div>
@@ -68,47 +99,29 @@
   <main id="app-outlet" class="pt-[75px] pb-[85px] w-full">
       </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 pb-1 shadow-2xl">
+  <nav class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 pb-1">
     
-    <button onclick="handleNavClick(this, 'home')" class="nav-btn active w-1/4 flex flex-col items-center justify-center gap-1">
-        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="nav-icon">
-        <span class="nav-text">Home</span>
+    <button onclick="router.navigate('home')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 text-emerald-400">
+        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-5 invert">
+        <span class="text-[10px] font-medium tracking-wide">Home</span>
     </button>
 
-    <button onclick="handleNavClick(this, 'mymatches')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1">
-        <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="nav-icon">
-        <span class="nav-text">Matches</span>
+    <button onclick="router.navigate('mymatches')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+        <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-5 invert">
+        <span class="text-[10px] font-medium tracking-wide">Matches</span>
     </button>
 
-    <button onclick="handleNavClick(this, 'refer')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1">
-        <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="nav-icon">
-        <span class="nav-text">Refer</span>
+    <button onclick="router.navigate('refer')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+        <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-5 invert">
+        <span class="text-[10px] font-medium tracking-wide">Refer</span>
     </button>
 
-    <button onclick="handleNavClick(this, 'profile')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1">
-        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="nav-icon">
-        <span class="nav-text">Profile</span>
+    <button onclick="router.navigate('profile')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-5 invert">
+        <span class="text-[10px] font-medium tracking-wide">Profile</span>
     </button>
     
   </nav>
-
-  <script>
-      // এই ফাংশনটি ন্যাভ বাটনে ক্লিক করলে একটিভ ক্লাস টগল করবে
-      function handleNavClick(element, route) {
-          // ১. সব বাটন থেকে 'active' ক্লাস সরিয়ে দিন
-          document.querySelectorAll('.nav-btn').forEach(btn => {
-              btn.classList.remove('active');
-          });
-          
-          // ২. যেটাতে ক্লিক হয়েছে সেটাতে 'active' ক্লাস দিন
-          element.classList.add('active');
-
-          // ৩. রাউটার কল করুন (আপনার app-ui.js এর ফাংশন)
-          if(typeof router !== 'undefined' && router.navigate) {
-              router.navigate(route);
-          }
-      }
-  </script>
 
   <script type="module" src="app-ui.js"></script>
 </body>

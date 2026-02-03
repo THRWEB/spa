@@ -10,61 +10,73 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
   
   <style>
-    /* ১. কার্ড গ্রিড ফিক্স - চওড়া করা হয়েছে */
-    #cardsGrid { 
-        display: grid; 
-        grid-template-columns: 1fr 1fr; 
-        gap: 1rem; 
-        width: 100%; /* ডিসপ্লে অনুযায়ী চওড়া */
-        margin: 0 auto; 
-        padding-top: 0px !important;
-    }
-
-    .es-main-section { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 1.3rem; box-shadow: 0 8px 32px rgba(0,0,0,0.4); border-left: 7px solid #ea580c; margin-bottom: 1rem; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
-    .es-main-section:active { transform: scale(0.95); }
-    .duo-section { border-left-color: #0ea5e9 !important; }
-    .squad-section { border-left-color: #fbbf24 !important; }
-    
-    .promo-banner { width: 100%; border-radius: 1rem; overflow: hidden; margin-bottom: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    
-    /* লোডার অ্যানিমেশন */
-    .energy-core { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
-    .core-outer { position: absolute; width: 100%; height: 100%; border: 3px solid transparent; border-left-color: #ea580c; border-right-color: #ea580c; border-radius: 50%; animation: core-rotate 1.2s cubic-bezier(0.53, 0.21, 0.29, 0.67) infinite; }
-    .core-inner { position: absolute; width: 70%; height: 70%; border: 3px solid transparent; border-top-color: #0ea5e9; border-bottom-color: #0ea5e9; border-radius: 50%; animation: core-rotate-rev 1s linear infinite; }
-    .core-center { width: 15px; height: 15px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px #ea580c, 0 0 40px #ea580c, 0 0 60px #ea580c; animation: core-pulse 0.8s ease-in-out infinite alternate; }
-    @keyframes core-rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    @keyframes core-rotate-rev { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
-    @keyframes core-pulse { from { transform: scale(0.8); opacity: 0.6; } to { transform: scale(1.3); opacity: 1; } }
-    
-    /* স্ক্রলিং ফিক্স */
+    /* ১. ইউনিভার্সাল চওড়া সেটআপ */
     html, body {
         height: 100%;
-        width: 100%;
+        width: 100vw !important; /* ডিসপ্লের পুরো চওড়া */
         margin: 0;
         padding: 0;
         overflow-x: hidden;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
-        scroll-behavior: smooth;
+        background-color: #0f172a;
     }
 
-    body::-webkit-scrollbar { display: none; }
-    
+    /* ২. কন্টেন্ট এরিয়া চওড়া করা */
     #app-outlet {
-        min-height: calc(100vh - 130px);
+        width: 100% !important;
+        max-width: none !important;
         display: block;
+        min-height: calc(100vh - 130px);
+    }
+
+    /* ৩. কার্ড গ্রিড ডিসপ্লে অনুযায়ী চওড়া */
+    #cardsGrid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 1rem; 
+        width: 100% !important; 
+        margin: 0; 
+        padding: 0px 10px !important; /* দুই পাশে হালকা গ্যাপ সুন্দর দেখানোর জন্য */
+    }
+
+    .es-main-section { 
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%); 
+        border-radius: 1rem; 
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4); 
+        border-left: 6px solid #ea580c; 
+        margin-bottom: 1rem; 
+        cursor: pointer; 
         width: 100%;
     }
+
+    .promo-banner { 
+        width: 100%; 
+        border-radius: 1rem; 
+        overflow: hidden; 
+        margin-bottom: 1.5rem; 
+    }
+    
+    /* লোডার অ্যানিমেশন */
+    .energy-core { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+    .core-outer { position: absolute; width: 100%; height: 100%; border: 3px solid transparent; border-left-color: #ea580c; border-right-color: #ea580c; border-radius: 50%; animation: core-rotate 1.2s infinite; }
+    .core-inner { position: absolute; width: 70%; height: 70%; border: 3px solid transparent; border-top-color: #0ea5e9; border-bottom-color: #0ea5e9; border-radius: 50%; animation: core-rotate-rev 1s linear infinite; }
+    .core-center { width: 15px; height: 15px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px #ea580c; animation: core-pulse 0.8s ease-in-out infinite alternate; }
+    @keyframes core-rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes core-rotate-rev { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+    @keyframes core-pulse { from { transform: scale(0.8); opacity: 0.6; } to { transform: scale(1.3); opacity: 1; } }
+
+    body::-webkit-scrollbar { display: none; }
   </style>
 </head>
 
-<body class="bg-[#0f172a] text-white w-full">
+<body class="bg-[#0f172a] text-white">
 
   <header class="fixed top-0 left-0 right-0 h-[60px] z-[1000] bg-[#0f172a] border-b border-white/5 flex items-center px-4">
-    <div class="flex items-center justify-between w-full mx-auto">
+    <div class="flex items-center justify-between w-full">
       <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-9 h-9 rounded-full border-2 border-emerald-500 object-cover">
       <h1 class="text-lg font-black tracking-widest uppercase">FFTW</h1>
-      <div id="walletDisplay" onclick="router.navigate('wallet')" class="bg-white/10 px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2 cursor-pointer">
+      <div id="walletDisplay" onclick="router.navigate('wallet')" class="bg-white/10 px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2">
         <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-4 invert">
         <span id="nav-wallet-amount" class="text-sm font-bold">₹...</span>
       </div>
@@ -80,20 +92,20 @@
       <p class="mt-10 text-[10px] font-bold tracking-[0.4em] text-gray-400 uppercase animate-pulse">Loading..</p>
   </div>
 
-  <main id="app-outlet" class="pt-[70px] pb-[85px] w-full px-4">
+  <main id="app-outlet" class="pt-[75px] pb-[85px] w-full">
       </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 shadow-[0_-5px_20px_rgba(0,0,0,0.3)]">
-    <button onclick="router.navigate('home')" class="nav-btn">
+  <nav class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5">
+    <button onclick="router.navigate('home')" class="nav-btn w-1/4 flex justify-center">
         <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-6">
     </button>
-    <button onclick="router.navigate('mymatches')" class="nav-btn opacity-50">
+    <button onclick="router.navigate('mymatches')" class="nav-btn w-1/4 flex justify-center opacity-50">
         <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-6">
     </button>
-    <button onclick="router.navigate('refer')" class="nav-btn opacity-50">
+    <button onclick="router.navigate('refer')" class="nav-btn w-1/4 flex justify-center opacity-50">
         <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-6">
     </button>
-    <button onclick="router.navigate('profile')" class="nav-btn opacity-50">
+    <button onclick="router.navigate('profile')" class="nav-btn w-1/4 flex justify-center opacity-50">
         <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-6">
     </button>
   </nav>

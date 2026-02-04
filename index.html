@@ -69,8 +69,17 @@
 
     body::-webkit-scrollbar { display: none; }
     
-    /* Nav Button Active State override if needed */
+    /* Nav Button Active State override */
     .nav-btn:active { transform: scale(0.95); }
+
+    /* Active State Class - Icon Blue and Opacity High */
+    .nav-btn.active {
+        opacity: 1 !important;
+        color: #3b82f6 !important; /* Blue color for text */
+    }
+    .nav-btn.active img {
+        filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(190deg) brightness(100%) contrast(100%) !important;
+    }
   </style>
 </head>
 
@@ -99,29 +108,41 @@
   <main id="app-outlet" class="pt-[75px] pb-[85px] w-full">
       </main>
 
-  <nav class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 pb-1">
+  <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 pb-1">
     
-    <button onclick="router.navigate('home')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+    <button onclick="router.navigate('home'); handleNavClick(this)" class="nav-btn active w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
         <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Home</span>
     </button>
 
-    <button onclick="router.navigate('mymatches')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+    <button onclick="router.navigate('mymatches'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
         <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Matches</span>
     </button>
 
-    <button onclick="router.navigate('refer')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+    <button onclick="router.navigate('refer'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
         <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Refer</span>
     </button>
 
-    <button onclick="router.navigate('profile')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
+    <button onclick="router.navigate('profile'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 hover:opacity-100 transition-opacity">
         <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Profile</span>
     </button>
     
   </nav>
+
+  <script>
+    // Navigation color change logic
+    function handleNavClick(clickedBtn) {
+        // Shobar agey sob button theke active class sorano
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        // Shudhu click kora button e active class add kora
+        clickedBtn.classList.add('active');
+    }
+  </script>
 
   <script type="module" src="app-ui.js"></script>
 </body>

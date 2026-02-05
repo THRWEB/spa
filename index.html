@@ -3,48 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>FFTW</title>
+  <title>FFTH</title>
   
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
   
   <style>
-    /* ১. ইউনিভার্সাল লেআউট সেটআপ */
+    /* ১. ইউনিভার্সাল চওড়া সেটআপ */
     html, body {
         height: 100%;
-        width: 100vw;
+        width: 100vw !important;
         margin: 0;
         padding: 0;
-        overflow: hidden; /* বডি স্ক্রল হবে না, মেইন এরিয়া স্ক্রল হবে */
+        overflow-x: hidden;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
         background-color: #0f172a;
         font-family: 'Poppins', sans-serif;
     }
 
-    /* ২. মেইন কন্টেন্ট এরিয়া স্ক্রল কন্ট্রোল */
+    /* ২. কন্টেন্ট এরিয়া চওড়া করা এবং ফিক্সড উচ্চতা নিশ্চিত করা */
     #app-outlet {
-        width: 100%;
-        height: calc(100vh - 130px); /* হেডার আর ফুটার বাদ দিয়ে বাকি অংশ */
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+        width: 100% !important;
+        max-width: none !important;
+        display: block;
+        min-height: calc(100vh - 130px);
+        padding-top: 75px; /* হেডারের জন্য গ্যাপ */
+        padding-bottom: 85px; /* নেভিগেশনের জন্য গ্যাপ */
     }
 
+    /* স্ক্রলবার হাইড */
     body::-webkit-scrollbar { display: none; }
-    #app-outlet::-webkit-scrollbar { display: none; }
     
     /* লোডার অ্যানিমেশন */
     .energy-core { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
     .core-outer { position: absolute; width: 100%; height: 100%; border: 3px solid transparent; border-left-color: #ea580c; border-right-color: #ea580c; border-radius: 50%; animation: core-rotate 1.2s infinite; }
     .core-inner { position: absolute; width: 70%; height: 70%; border: 3px solid transparent; border-top-color: #0ea5e9; border-bottom-color: #0ea5e9; border-radius: 50%; animation: core-rotate-rev 1s linear infinite; }
     .core-center { width: 15px; height: 15px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px #ea580c; animation: core-pulse 0.8s ease-in-out infinite alternate; }
-    
     @keyframes core-rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes core-rotate-rev { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
     @keyframes core-pulse { from { transform: scale(0.8); opacity: 0.6; } to { transform: scale(1.3); opacity: 1; } }
 
-    /* Bottom Nav Buttons */
-    .nav-btn { transition: all 0.3s ease; cursor: pointer; }
-    .nav-btn:active { transform: scale(0.9); }
+    /* Nav Button Active State */
+    .nav-btn:active { transform: scale(0.95); }
     .nav-btn.active {
         opacity: 1 !important;
         color: #3b82f6 !important;
@@ -60,15 +62,15 @@
   <header class="fixed top-0 left-0 right-0 h-[60px] z-[1000] bg-[#0f172a] border-b border-white/5 flex items-center px-4">
     <div class="flex items-center justify-between w-full">
       <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-9 h-9 rounded-full border-2 border-emerald-500 object-cover">
-      <h1 class="text-lg font-black tracking-widest uppercase">FFTW</h1>
+      <h1 class="text-lg font-black tracking-widest uppercase text-white">FFTW</h1>
       <div id="walletDisplay" onclick="router.navigate('wallet')" class="bg-white/10 px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2 cursor-pointer">
         <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="w-4 invert">
-        <span id="nav-wallet-amount" class="text-sm font-bold tracking-tight">₹...</span>
+        <span id="nav-wallet-amount" class="text-sm font-bold">₹...</span>
       </div>
     </div>
   </header>
 
-  <div id="router-loader" style="display: none;" class="fixed inset-0 z-[5000] bg-[#0f172a] flex flex-col items-center justify-center transition-opacity duration-300">
+  <div id="router-loader" class="fixed inset-0 z-[5000] bg-[#0f172a] flex flex-col items-center justify-center transition-opacity duration-300">
       <div class="energy-core">
           <div class="core-outer"></div>
           <div class="core-inner"></div>
@@ -77,27 +79,27 @@
       <p class="mt-10 text-[10px] font-bold tracking-[0.4em] text-gray-400 uppercase animate-pulse">Loading..</p>
   </div>
 
-  <main id="app-outlet" class="mt-[60px] mb-[70px]">
+  <main id="app-outlet">
       </main>
 
   <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 pb-1">
     
-    <button data-route="home" onclick="router.navigate('home')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50">
+    <button data-route="home" onclick="router.navigate('home'); handleNavClick(this)" class="nav-btn active w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-opacity">
         <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Home</span>
     </button>
 
-    <button data-route="mymatches" onclick="router.navigate('mymatches')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50">
+    <button data-route="mymatches" onclick="router.navigate('mymatches'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-opacity">
         <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Matches</span>
     </button>
 
-    <button data-route="refer" onclick="router.navigate('refer')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50">
+    <button data-route="refer" onclick="router.navigate('refer'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-opacity">
         <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Refer</span>
     </button>
 
-    <button data-route="profile" onclick="router.navigate('profile')" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50">
+    <button data-route="profile" onclick="router.navigate('profile'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-opacity">
         <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-5 invert">
         <span class="text-[10px] font-medium tracking-wide">Profile</span>
     </button>
@@ -105,31 +107,17 @@
   </nav>
 
   <script>
-    // নেভিগেশন হাইলাইট করার লজিক (যা app-ui.js থেকেও কল হতে পারে)
-    window.updateNavUI = function(page) {
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            if(btn.getAttribute('data-route') === page) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-    };
+    function handleNavClick(clickedBtn) {
+        if(!clickedBtn) return;
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        clickedBtn.classList.add('active');
+    }
 
-    // রিফ্রেশ করা হলেও যেন আগের পেজেই থাকে
+    // রিফ্রেশ করার পর সঠিক বাটনটি হাইলাইট করার লজিক
     window.addEventListener('load', () => {
-        // যদি URL-এ কোনো হ্যাশ না থাকে, তবে ডিফল্ট 'home'
-        if (!window.location.hash) {
-            window.location.hash = '#home';
-        }
-    });
-
-    // ব্রাউজারের ব্যাক বাটন বা হ্যাশ চেঞ্জ হ্যান্ডেল করা
-    window.addEventListener('hashchange', () => {
-        const page = window.location.hash.replace('#', '') || 'home';
-        if(window.router && window.router.navigate) {
-            window.router.navigate(page);
-        }
+        const hash = window.location.hash.replace('#', '') || 'home';
+        const activeBtn = document.querySelector(`.nav-btn[data-route="${hash}"]`);
+        if(activeBtn) handleNavClick(activeBtn);
     });
   </script>
 

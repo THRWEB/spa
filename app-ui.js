@@ -17,12 +17,15 @@ window.db = getFirestore(app);
 
 window.router = {
     async navigate(page) {
-        // রিফ্রেশ করার পর পাথ মনে রাখার জন্য হ্যাশ সেট করা
-        window.location.hash = page; 
+        // হ্যাশ আপডেট করা (যদি আগে থেকে না থাকে)
+        if(window.location.hash !== `#${page}`) {
+            window.location.hash = page;
+        }
 
         const outlet = document.getElementById('app-outlet');
         const loader = document.getElementById('router-loader');
         
+        // হেডার-ফুটার স্থির রেখে শুধু কন্টেন্ট এরিয়ার লোডার দেখানো
         if(loader) {
             loader.style.display = 'flex';
             loader.style.opacity = '1';
@@ -33,8 +36,10 @@ window.router = {
             if (!response.ok) throw new Error('Page not found');
             const html = await response.text();
             
+            // কন্টেন্ট ইনজেক্ট করা
             outlet.innerHTML = html;
 
+            // স্ক্রিপ্ট এক্সিকিউট করা
             const scripts = outlet.querySelectorAll('script');
             scripts.forEach(oldScript => {
                 const newScript = document.createElement('script');
@@ -43,7 +48,7 @@ window.router = {
                 document.body.appendChild(newScript).parentNode.removeChild(newScript);
             });
 
-            // নেভিগেশন বাটনের একটিভ স্টেট আপডেট
+            // নেভিগেশন বাটনের একটিভ স্টেট আপডেট (তোমার লজিক ঠিক রাখা হয়েছে)
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 const clickAttr = btn.getAttribute('onclick') || "";
                 if(clickAttr.includes(`'${page}'`)) {
@@ -60,6 +65,7 @@ window.router = {
             console.error(err);
         }
 
+        // লোডার সরানো
         setTimeout(() => {
             if(loader) {
                 loader.style.opacity = '0';
@@ -69,17 +75,15 @@ window.router = {
     }
 };
 
-// ✅ রিফ্রেশ হ্যান্ডলার: পেজ লোড হলে হ্যাশ দেখে সঠিক পেজে নিয়ে যাবে
-function handleRefresh() {
-    const currentHash = window.location.hash.replace('#', '') || 'home';
-    window.router.navigate(currentHash);
-}
-
+// টাইম ফরম্যাট ফাংশন
 window.formatMatchTime = function(timestamp) {
     if (!timestamp) return "TBA";
     let date = (timestamp && timestamp.seconds) ? new Date(timestamp.seconds * 1000) : new Date(timestamp);
     return `${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })} ${date.toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}`;
 };
+
+// 🔥 রিফ্রেশ সমস্যা সমাধানের জন্য এই লজিকটি গুরুত্বপূর্ণ
+let isInitialLoad = true;
 
 onAuthStateChanged(window.auth, user => {
     if (user) {
@@ -92,8 +96,12 @@ onAuthStateChanged(window.auth, user => {
             }
         });
 
-        // লগইন থাকার পর রিফ্রেশ দিলে সঠিক পেজ লোড করা
-        handleRefresh();
+        // শুধুমাত্র প্রথমবার লোড হওয়ার সময় বা রিফ্রেশ হলে এটি কল হবে
+        if (isInitialLoad) {
+            const currentHash = window.location.hash.replace('#', '') || 'home';
+            window.router.navigate(currentHash);
+            isInitialLoad = false;
+        }
         
     } else {
         if(!window.location.pathname.includes("login.html") && !window.location.pathname.includes("register.html")) {
@@ -102,5 +110,9 @@ onAuthStateChanged(window.auth, user => {
     }
 });
 
-// ব্রাউজারের ব্যাক বাটন টিপলে যেন পেজ চেঞ্জ হয়
-window.addEventListener('hashchange', handleRefresh);
+// ব্রাউজারের ব্যাক বাটন বা হ্যাশ চেঞ্জ হ্যান্ডেল করা
+window.addEventListener('hashchange', () => {
+    const currentHash = window.location.hash.replace('#', '') || 'home';
+    // যদি আমরা অলরেডি ওই পেজে না থাকি, তবেই নেভিগেট করবো
+    window.router.navigate(currentHash);
+});

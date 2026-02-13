@@ -3,48 +3,67 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>FFTH</title>
+  <title>FFTH - Emerald & Gold Edition</title>
   
-  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet" />
   
   <style>
-    /* ১. ইউনিভার্সাল চওড়া সেটআপ */
-    html, body {
-        height: 100%;
-        width: 100vw !important;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch;
-        background-color: #0f172a;
-        font-family: 'Poppins', sans-serif;
+    /* --- CSS VARIABLES --- */
+    :root {
+        --bg-dark: #05070a;       
+        --accent-grad: linear-gradient(135deg, #fbbf24, #d97706); 
+        --emerald-glow: rgba(16, 185, 129, 0.4);
+        --nav-bg: rgba(15, 23, 42, 0.9);
+        --active-color: #10b981; 
+        --header-h: 65px;         
+        --nav-h: 70px;            
     }
 
-    /* ২. কন্টেন্ট এরিয়া */
-    #app-outlet {
-        width: 100% !important;
-        display: block;
-        min-height: 100vh;
-        padding-top: 75px; 
-        padding-bottom: 85px;
+    /* --- UNIVERSAL RESET --- */
+    * {
+        margin: 0;
+        padding: 0;
         box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body { 
+        background-color: var(--bg-dark) !important; 
+        color: #f8fafc;
+        font-family: 'Poppins', sans-serif;
+        height: 100%;
+        width: 100vw;
+        overflow-x: hidden;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
     }
 
     body::-webkit-scrollbar { display: none; }
-    
-    /* লোডার অ্যানিমেশন - এবার এটি শুধু মাঝখানের অংশে থাকবে */
+
+    /* --- HEADER DESIGN --- */
+    header {
+        position: fixed;
+        top: 0; left: 0; width: 100%;
+        height: var(--header-h);
+        background: rgba(5, 7, 10, 0.8);
+        backdrop-filter: blur(15px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        z-index: 10000;
+        display: flex; align-items: center;
+        padding: 0 20px;
+    }
+
+    /* --- LOADER --- */
     #router-loader {
         position: fixed;
-        /* হেডার এবং ফুটার বাদে মাঝখানের জায়গাটুকু */
-        top: 60px; 
-        bottom: 70px;
+        top: var(--header-h); 
+        bottom: 0;
         left: 0;
         right: 0;
-        z-index: 500; /* হেডারের নিচে রাখার জন্য */
-        background-color: #0f172a; /* শুধু মাঝখানের ব্যাকগ্রাউন্ড */
+        z-index: 500;
+        background-color: var(--bg-dark);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -52,30 +71,107 @@
         transition: opacity 0.3s ease;
     }
 
-    .energy-core { position: relative; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
-    .core-outer { position: absolute; width: 100%; height: 100%; border: 3px solid transparent; border-left-color: #ea580c; border-right-color: #ea580c; border-radius: 50%; animation: core-rotate 1.2s infinite; }
-    .core-inner { position: absolute; width: 70%; height: 70%; border: 3px solid transparent; border-top-color: #0ea5e9; border-bottom-color: #0ea5e9; border-radius: 50%; animation: core-rotate-rev 1s linear infinite; }
-    .core-center { width: 12px; height: 12px; background: #fff; border-radius: 50%; box-shadow: 0 0 20px #ea580c; animation: core-pulse 0.8s ease-in-out infinite alternate; }
-    
+    .energy-core { position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; }
+    .core-outer { position: absolute; width: 100%; height: 100%; border: 2px solid transparent; border-left-color: #fbbf24; border-right-color: #fbbf24; border-radius: 50%; animation: core-rotate 1.2s infinite; }
+    .core-inner { position: absolute; width: 70%; height: 70%; border: 2px solid transparent; border-top-color: var(--active-color); border-bottom-color: var(--active-color); border-radius: 50%; animation: core-rotate-rev 1s linear infinite; }
     @keyframes core-rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes core-rotate-rev { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
-    @keyframes core-pulse { from { transform: scale(0.8); opacity: 0.6; } to { transform: scale(1.3); opacity: 1; } }
 
-    /* Nav Button Active State */
-    .nav-btn:active { transform: scale(0.95); }
-    .nav-btn.active {
-        opacity: 1 !important;
-        color: #3b82f6 !important;
+    /* --- CONTENT AREA --- */
+    #app-outlet {
+        width: 100%;
+        flex: 1;
+        padding-top: calc(var(--header-h) + 20px);
+        padding-bottom: calc(var(--nav-h) + 50px);
+        box-sizing: border-box;
     }
-    .nav-btn.active img {
-        filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(190deg) brightness(100%) contrast(100%) !important;
+
+    /* --- FLOATING BOTTOM DOCK --- */
+    .bottom-nav {
+        position: fixed !important;
+        bottom: 20px;
+        left: 5%;
+        right: 5%;
+        width: 90%; 
+        height: var(--nav-h);
+        background: var(--nav-bg) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        display: flex; 
+        justify-content: space-around;
+        align-items: center;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        z-index: 10000;
+        border-radius: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--emerald-glow);
+    }
+
+    /* --- NAV ITEMS --- */
+    .nav-btn {
+        position: relative;
+        display: flex; 
+        flex-direction: column; 
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8; 
+        text-decoration: none; 
+        font-size: 10px;
+        font-weight: 600;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: transparent;
+        border: none;
+        width: 20%;
+    }
+
+    .nav-btn img { 
+        width: 22px; 
+        height: 22px; 
+        margin-bottom: 4px; 
+        transition: transform 0.3s ease;
+        filter: invert(1) opacity(0.5); /* Makes standard black icons white */
+    }
+
+    .nav-btn.active { 
+        color: var(--active-color) !important;
+        opacity: 1 !important;
+    }
+
+    .nav-btn.active img { 
+        filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(120deg) brightness(100%) contrast(100%) !important;
+        transform: translateY(-5px);
+    }
+
+    /* --- GOLDEN CENTER BUTTON (REFER) --- */
+    .center-btn {
+        background: var(--accent-grad) !important;
+        width: 58px !important;
+        height: 58px !important;
+        border-radius: 50% !important;
+        margin-top: -45px;
+        border: 5px solid var(--bg-dark) !important;
+        box-shadow: 0 5px 15px rgba(217, 119, 6, 0.4);
+        opacity: 1 !important;
+    }
+
+    .center-btn img {
+        filter: brightness(0) !important; /* Icon becomes black on gold */
+        margin-bottom: 0;
+        width: 26px;
+        height: 26px;
+    }
+    
+    .center-btn span {
+        position: absolute;
+        bottom: -22px;
+        color: #fbbf24;
+        font-weight: 800;
     }
   </style>
 </head>
 
-<body class="bg-[#0f172a] text-white">
+<body>
 
-  <header class="fixed top-0 left-0 right-0 h-[60px] z-[1000] bg-[#0f172a] border-b border-white/5 flex items-center px-4">
+  <header>
     <div class="flex items-center justify-between w-full">
       <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-9 h-9 rounded-full border-2 border-emerald-500 object-cover">
       <h1 class="text-lg font-black tracking-widest uppercase text-white">FFTW</h1>
@@ -90,33 +186,37 @@
       <div class="energy-core">
           <div class="core-outer"></div>
           <div class="core-inner"></div>
-          <div class="core-center"></div>
       </div>
-      <p class="mt-8 text-[9px] font-bold tracking-[0.4em] text-gray-400 uppercase animate-pulse">Loading..</p>
+      <p class="mt-6 text-[9px] font-bold tracking-[0.4em] text-emerald-500 uppercase animate-pulse">Synchronizing</p>
   </div>
 
   <main id="app-outlet">
       </main>
 
-  <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 h-[70px] z-[1000] bg-[#1e293b] flex justify-around items-center border-t border-white/5 pb-1">
-    <button data-route="home" onclick="router.navigate('home'); handleNavClick(this)" class="nav-btn active w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-opacity">
-        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" class="w-5 invert">
-        <span class="text-[10px] font-medium tracking-wide">Home</span>
+  <nav class="bottom-nav">
+    <button data-route="home" onclick="router.navigate('home'); handleNavClick(this)" class="nav-btn active">
+        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png">
+        <span>Home</span>
     </button>
 
-    <button data-route="mymatches" onclick="router.navigate('mymatches'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-opacity">
-        <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png" class="w-5 invert">
-        <span class="text-[10px] font-medium tracking-wide">Matches</span>
+    <button data-route="mymatches" onclick="router.navigate('mymatches'); handleNavClick(this)" class="nav-btn">
+        <img src="https://cdn-icons-png.flaticon.com/512/13/13973.png">
+        <span>Matches</span>
     </button>
 
-    <button data-route="refer" onclick="router.navigate('refer'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-opacity">
-        <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png" class="w-5 invert">
-        <span class="text-[10px] font-medium tracking-wide">Refer</span>
+    <button data-route="refer" onclick="router.navigate('refer'); handleNavClick(this)" class="nav-btn center-btn">
+        <img src="https://cdn-icons-png.flaticon.com/512/6537/6537740.png">
+        <span>Refer</span>
     </button>
 
-    <button data-route="profile" onclick="router.navigate('profile'); handleNavClick(this)" class="nav-btn w-1/4 flex flex-col items-center justify-center gap-1 opacity-50 transition-opacity">
-        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png" class="w-5 invert">
-        <span class="text-[10px] font-medium tracking-wide">Profile</span>
+    <button data-route="profile" onclick="router.navigate('profile'); handleNavClick(this)" class="nav-btn">
+        <img src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png">
+        <span>Profile</span>
+    </button>
+
+    <button data-route="wallet" onclick="router.navigate('wallet'); handleNavClick(this)" class="nav-btn">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135706.png">
+        <span>Wallet</span>
     </button>
   </nav>
 
@@ -132,14 +232,13 @@
         const activeBtn = document.querySelector(`.nav-btn[data-route="${hash}"]`);
         if(activeBtn) handleNavClick(activeBtn);
         
-        // রিফ্রেশ করার পর যখন পেজ লোড হয়ে যাবে, লোডার হাইড হবে
         setTimeout(() => {
             const loader = document.getElementById('router-loader');
             if(loader) {
                 loader.style.opacity = '0';
                 setTimeout(() => loader.style.display = 'none', 300);
             }
-        }, 1000);
+        }, 800);
     });
   </script>
 

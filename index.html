@@ -16,7 +16,7 @@
         --emerald-glow: rgba(16, 185, 129, 0.4);
         --nav-bg: rgba(15, 23, 42, 0.9);
         --active-color: #10b981; 
-        --header-h: 70px; /* Slightly taller for modern look */        
+        --header-h: 65px;         
         --nav-h: 70px;            
     }
 
@@ -42,57 +42,136 @@
 
     body::-webkit-scrollbar { display: none; }
 
-    /* --- NEW MODERN HEADER DESIGN --- */
+    /* --- MODERN HEADER DESIGN --- */
     header {
         position: fixed;
         top: 0; left: 0; width: 100%;
         height: var(--header-h);
-        /* High-end Glassmorphism */
-        background: rgba(5, 7, 10, 0.65);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+        background: rgba(5, 7, 10, 0.95);
+        backdrop-filter: blur(25px) saturate(180%);
+        -webkit-backdrop-filter: blur(25px) saturate(180%);
+        border-bottom: 1px solid rgba(16, 185, 129, 0.3);
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.4),
+            0 0 0 1px rgba(16, 185, 129, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
         z-index: 10000;
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 0 24px;
+        display: flex; 
+        align-items: center;
+        padding: 0 16px;
     }
 
-    /* Animated Avatar Ring */
-    .avatar-container { position: relative; display: flex; align-items: center; justify-content: center; }
-    .avatar-glow {
-        position: absolute; width: 110%; height: 110%;
-        border-radius: 50%;
-        background: radial-gradient(circle, var(--emerald-glow) 0%, transparent 70%);
-        opacity: 0.6;
-        animation: pulse-glow 3s infinite ease-in-out;
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 12px;
     }
-    @keyframes pulse-glow { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); } }
 
-    /* Gradient Text for Logo */
-    .brand-text {
-        background: linear-gradient(to right, #fbbf24, #f59e0b, #10b981);
+    .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .profile-avatar {
+        position: relative;
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        border: 2px solid rgba(16, 185, 129, 0.6);
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .profile-avatar::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #10b981, #fbbf24, #10b981);
+        border-radius: 14px;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .profile-avatar:hover::before {
+        opacity: 1;
+    }
+
+    .logo-text {
+        font-size: clamp(18px, 4vw, 22px);
+        font-weight: 900;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b, #10b981);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        background-clip: text;
+        letter-spacing: -0.02em;
+        text-shadow: 0 2px 10px rgba(251, 191, 36, 0.3);
+        position: relative;
     }
 
-    /* Modern Wallet Pill */
-    .wallet-pill {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-        position: relative; overflow: hidden;
-        transition: all 0.3s ease;
+    .logo-text::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.8), transparent);
+        border-radius: 1px;
     }
-    .wallet-pill::before {
-        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
-        transform: translateX(-100%);
-        transition: 0.5s;
+
+    .wallet-container {
+        position: relative;
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(16, 185, 129, 0.2));
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(251, 191, 36, 0.4);
+        border-radius: 20px;
+        padding: 8px 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        min-width: 80px;
+        box-shadow: 
+            0 8px 25px rgba(251, 191, 36, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
-    .wallet-pill:active { transform: scale(0.96); }
-    .wallet-pill:active::before { transform: translateX(100%); }
+
+    .wallet-container:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 
+            0 12px 35px rgba(251, 191, 36, 0.35),
+            0 0 0 1px rgba(251, 191, 36, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(16, 185, 129, 0.3));
+    }
+
+    .wallet-icon {
+        width: 18px;
+        height: 18px;
+        filter: brightness(1.2) contrast(1.1);
+        transition: filter 0.3s ease;
+    }
+
+    .wallet-container:hover .wallet-icon {
+        filter: brightness(1.4) contrast(1.2) drop-shadow(0 1px 2px rgba(251, 191, 36, 0.5));
+    }
+
+    .wallet-amount {
+        font-size: 13px;
+        font-weight: 800;
+        color: #fbbf24;
+        letter-spacing: -0.01em;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
 
     /* --- LOADER --- */
     #router-loader {
@@ -167,7 +246,7 @@
         height: 22px; 
         margin-bottom: 4px; 
         transition: transform 0.3s ease;
-        filter: invert(1) opacity(0.5); 
+        filter: invert(1) opacity(0.5); /* Makes standard black icons white */
     }
 
     .nav-btn.active { 
@@ -193,7 +272,7 @@
     }
 
     .center-btn img {
-        filter: brightness(0) !important; 
+        filter: brightness(0) !important; /* Icon becomes black on gold */
         margin-bottom: 0;
         width: 26px;
         height: 26px;
@@ -211,21 +290,18 @@
 <body>
 
   <header>
-    <div class="avatar-container cursor-pointer" onclick="router.navigate('profile')">
-        <div class="avatar-glow"></div>
-        <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-10 h-10 rounded-full border border-white/10 object-cover relative z-10 hover:scale-105 transition-transform">
-    </div>
-
-    <div class="flex flex-col items-center justify-center">
-        <h1 class="brand-text text-2xl font-black italic tracking-wider">FFTW</h1>
-        <div class="h-0.5 w-8 bg-gradient-to-r from-transparent via-emerald-500 to-transparent rounded-full mt-1"></div>
-    </div>
-
-    <div id="walletDisplay" onclick="router.navigate('wallet')" class="wallet-pill px-3 py-1.5 rounded-xl flex items-center gap-2.5 cursor-pointer">
-      <div class="bg-emerald-500/20 p-1.5 rounded-full">
-        <img src="https://cdn-icons-png.flaticon.com/512/8562/8562064.png" class="w-3.5 h-3.5 invert opacity-90">
+    <div class="header-container">
+      <div class="logo-section">
+        <div class="profile-avatar">
+          <img src="https://i.postimg.cc/c6yPFcLK/IMG-20260113-003634-287.jpg" class="w-full h-full object-cover">
+        </div>
+        <h1 class="logo-text">FFTW</h1>
       </div>
-      <span id="nav-wallet-amount" class="text-xs font-bold tracking-wide text-emerald-400">₹...</span>
+      
+      <div id="walletDisplay" onclick="router.navigate('wallet')" class="wallet-container">
+        <img src="https://i.postimg.cc/3R7QM12R/wallet-filled-money-tool.png" class="wallet-icon">
+        <span id="nav-wallet-amount" class="wallet-amount">₹0.00</span>
+      </div>
     </div>
   </header>
 
@@ -238,7 +314,7 @@
   </div>
 
   <main id="app-outlet">
-      </main>
+  </main>
 
   <nav class="bottom-nav">
     <button data-route="home" onclick="router.navigate('home'); handleNavClick(this)" class="nav-btn active">

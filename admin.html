@@ -27,7 +27,7 @@
     <div class="glass p-8 max-w-sm w-full text-center space-y-6">
       <h2 class="text-3xl font-black text-emerald-500 uppercase">FFTW Admin</h2>
       <div class="space-y-3">
-        <input type="text" id="adminUser" placeholder="Admin Username">
+        <input type="email" id="adminEmail" placeholder="Admin Email">
         <input type="password" id="adminPass" placeholder="Password">
       </div>
       <button id="btnLogin" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-bold text-white shadow-xl transition-all active:scale-95">LOGIN</button>
@@ -92,7 +92,6 @@
   </div>
 
   <script type="module">
-    // Added 'query', 'where', 'getDocs' to imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, updateDoc, deleteDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -108,10 +107,10 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- 1. LOGIN LOGIC (Database Check) ---
+    // --- 1. LOGIN LOGIC (UPDATED FOR EMAIL & ISADMIN) ---
     document.getElementById('btnLogin').onclick = async () => {
-        const u = document.getElementById('adminUser').value.trim();
-        const p = document.getElementById('adminPass').value.trim();
+        const email = document.getElementById('adminEmail').value.trim(); // Get Email
+        const pass = document.getElementById('adminPass').value.trim();  // Get Password
         const btn = document.getElementById('btnLogin');
         const err = document.getElementById('loginError');
 
@@ -119,17 +118,17 @@
         err.classList.add('hidden');
         btn.innerText = "VERIFYING...";
 
-        if(!u || !p) {
-            err.innerText = "Please enter both fields.";
+        if(!email || !pass) {
+            err.innerText = "Please enter Email and Password.";
             err.classList.remove('hidden');
             btn.innerText = "LOGIN";
             return;
         }
 
         try {
-            // 1. Query 'users' collection where 'username' matches input
+            // Query 'users' collection where 'email' matches input
             const usersRef = collection(db, "users");
-            const q = query(usersRef, where("username", "==", u));
+            const q = query(usersRef, where("email", "==", email));
             const querySnapshot = await getDocs(q);
 
             let isAuthenticated = false;
@@ -138,7 +137,8 @@
                 // User found, now check password and isAdmin status
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    if (data.password === p && data.isAdmin === true) {
+                    // STRICT CHECK: Password match AND isAdmin is strictly true
+                    if (data.password === pass && data.isAdmin === true) {
                         isAuthenticated = true;
                     }
                 });
@@ -148,7 +148,7 @@
                 sessionStorage.setItem('isAdminAuth', 'true');
                 initPanelAccess();
             } else {
-                err.innerText = "Access Denied. Check credentials or Admin privileges.";
+                err.innerText = "Access Denied. Incorrect credentials or not an Admin.";
                 err.classList.remove('hidden');
             }
         } catch (error) {
@@ -168,7 +168,7 @@
         }
     }
 
-    // --- 2. GLOBAL FUNCTIONS (Attached to Window for HTML onclick access) ---
+    // --- 2. GLOBAL FUNCTIONS ---
     
     // Switch Tabs
     window.switchTab = (id, btn) => {
@@ -188,6 +188,7 @@
 
     // Approve Deposit Logic
     window.approveDeposit = async (reqId, uid, amt) => {
+        // ... (Existing Logic)
         if(!confirm(`Confirm Approve ₹${amt}?`)) return;
         
         try {
@@ -198,10 +199,7 @@
                 const current = Number(userSnap.data().deposit || 0);
                 const newBalance = current + Number(amt);
                 
-                // Update User Balance
                 await updateDoc(userRef, { deposit: newBalance });
-                
-                // Delete Request
                 await deleteDoc(doc(db, "addMoneyRequests", reqId));
                 
                 alert("Success: Balance Updated!");
@@ -246,7 +244,6 @@
                     image: "https://i.postimg.cc/rsf7yB1M/1768308154801.jpg"
                 });
                 alert("Match Published Successfully!");
-                // Clear inputs
                 document.getElementById('mTitle').value = "";
             } catch (e) { 
                 alert("Error: " + e.message); 
@@ -254,7 +251,7 @@
             btn.innerText = "PUBLISH";
         };
 
-        // Real-time DEPOSITS Listener
+        // Real-time DEPOSITS
         onSnapshot(collection(db, "addMoneyRequests"), (snapshot) => {
             const body = document.getElementById('payBody');
             body.innerHTML = '';
@@ -266,7 +263,6 @@
 
             snapshot.forEach(docSnap => {
                 const r = docSnap.data();
-                // We must use quotes for strings in onclick arguments
                 body.innerHTML += `
                 <div class="flex justify-between items-center bg-slate-800/50 p-4 rounded-xl border border-white/5 hover:border-emerald-500/30 transition-colors">
                     <div>
@@ -276,7 +272,6 @@
                     </div>
                     <div class="flex flex-col gap-2 text-right">
                         <a href="${r.proofUrl}" target="_blank" class="bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 px-4 py-1.5 rounded-lg text-xs font-bold border border-sky-500/20 transition-all">VIEW PROOF</a>
-                        
                         <div class="flex gap-2">
                              <button onclick="deleteReq('addMoneyRequests','${docSnap.id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-red-500/20">REJECT</button>
                              <button onclick="approveDeposit('${docSnap.id}', '${r.uid}', ${r.amount})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg shadow-emerald-900/20">APPROVE</button>
@@ -284,11 +279,9 @@
                     </div>
                 </div>`;
             });
-        }, (error) => {
-            console.error("Deposit Listener Error:", error);
         });
 
-        // Real-time WITHDRAWALS Listener
+        // Real-time WITHDRAWALS
         onSnapshot(collection(db, "withdrawalRequests"), (snapshot) => {
             const body = document.getElementById('withdrawBody');
             body.innerHTML = '';
@@ -313,12 +306,9 @@
                     <button onclick="deleteReq('withdrawalRequests','${docSnap.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-emerald-900/20 active:scale-95 transition-all">MARK PAID</button>
                 </div>`;
             });
-        }, (error) => {
-             console.error("Withdraw Listener Error:", error);
         });
     }
 
-    // Initialize Check
     initPanelAccess();
   </script>
 </body>

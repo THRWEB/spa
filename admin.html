@@ -12,7 +12,8 @@
     .glass { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; }
     .tab-btn { padding: 10px 20px; border-radius: 10px; font-weight: 600; transition: 0.3s; opacity: 0.6; cursor: pointer; }
     .tab-btn.active { background: #10b981; color: white; opacity: 1; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
-    input, select { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; padding: 12px; border-radius: 12px; outline: none; width: 100%; }
+    /* Purple active state for notification tab specifically if desired, but keeping uniform for now */
+    input, select, textarea { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; padding: 12px; border-radius: 12px; outline: none; width: 100%; }
     #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020617; z-index: 500; display: flex; justify-content: center; align-items: center; }
     #admin-panel { display: none; }
     ::-webkit-scrollbar { width: 6px; }
@@ -37,13 +38,14 @@
   <div id="admin-panel" class="max-w-6xl mx-auto">
     <div class="flex justify-between items-center mb-10 border-b border-slate-800 pb-6">
       <h1 class="text-3xl font-black">ADMIN CONTROL</h1>
-      <button onclick="logoutAdmin()" class="bg-red-500/10 text-red-500 px-6 py-2 rounded-xl border border-red-500/20 font-bold text-xs hover:bg-red-500 transition-colors">EXIT PANEL</button>
+      <button onclick="logoutAdmin()" class="bg-red-500/10 text-red-500 px-6 py-2 rounded-xl border border-red-500/20 font-bold text-xs hover:bg-red-500 hover:text-white transition-colors">EXIT PANEL</button>
     </div>
 
-    <div class="flex gap-2 mb-10 bg-slate-900/80 p-1.5 rounded-2xl w-fit border border-white/5">
+    <div class="flex flex-wrap gap-2 mb-10 bg-slate-900/80 p-1.5 rounded-2xl w-fit border border-white/5">
       <button onclick="switchTab('match-tab', this)" class="tab-btn active">Matches</button>
       <button onclick="switchTab('payment-tab', this)" class="tab-btn">Deposits</button>
       <button onclick="switchTab('withdraw-tab', this)" class="tab-btn">Withdrawals</button>
+      <button onclick="switchTab('notif-tab', this)" class="tab-btn">Notifications</button>
     </div>
 
     <div id="match-tab" class="tab-content">
@@ -62,7 +64,9 @@
           <input type="number" id="mSlot" placeholder="Slots">
           <input type="text" id="mMap" placeholder="Map">
           <input type="datetime-local" id="mTime">
-          <button id="pubBtn" class="bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95">PUBLISH</button>
+          <div class="md:col-span-2 lg:col-span-3">
+             <button id="pubBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95">PUBLISH MATCH</button>
+          </div>
         </div>
       </div>
     </div>
@@ -88,6 +92,37 @@
              </div>
       </div>
     </div>
+
+    <div id="notif-tab" class="tab-content hidden">
+      <div class="glass p-8 max-w-2xl mx-auto">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="p-3 bg-purple-500/20 rounded-xl text-purple-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-purple-400">Broadcast Notification</h2>
+                <p class="text-xs text-gray-400">Send alerts to all app users</p>
+            </div>
+        </div>
+        
+        <div class="space-y-5">
+          <div>
+            <label class="text-xs text-gray-400 font-bold ml-1 mb-1 block">TITLE</label>
+            <input type="text" id="nTitle" placeholder="e.g. Tournament Update">
+          </div>
+          
+          <div>
+            <label class="text-xs text-gray-400 font-bold ml-1 mb-1 block">MESSAGE BODY</label>
+            <textarea id="nMessage" rows="4" placeholder="Type your message here..." class="w-full bg-slate-900 border border-slate-800 text-white p-3 rounded-xl outline-none focus:border-purple-500 transition-colors"></textarea>
+          </div>
+
+          <button id="btnSendNotif" class="w-full bg-purple-600 hover:bg-purple-500 py-4 rounded-xl font-bold text-white shadow-lg shadow-purple-900/30 transition-all active:scale-95">
+              SEND NOW
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script type="module">
@@ -106,14 +141,13 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- 1. LOGIN LOGIC (Email + Password + isAdmin Check) ---
+    // --- 1. AUTHENTICATION ---
     document.getElementById('btnLogin').onclick = async () => {
         const email = document.getElementById('adminEmail').value.trim();
         const password = document.getElementById('adminPass').value.trim();
         const btn = document.getElementById('btnLogin');
         const err = document.getElementById('loginError');
 
-        // Reset UI
         err.classList.add('hidden');
         btn.innerText = "VERIFYING...";
 
@@ -125,28 +159,26 @@
         }
 
         try {
-            // Query 'users' collection where 'email' matches input
             const usersRef = collection(db, "users");
             const q = query(usersRef, where("email", "==", email));
             const querySnapshot = await getDocs(q);
-
             let isAuthenticated = false;
 
-            if (!querySnapshot.empty) {
-                // User found, now check password and isAdmin status
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    if (data.password === password && data.isAdmin === true) {
-                        isAuthenticated = true;
-                    }
-                });
-            }
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.password === password && data.isAdmin === true) {
+                    isAuthenticated = true;
+                }
+            });
 
             if(isAuthenticated) {
                 sessionStorage.setItem('isAdminAuth', 'true');
-                initPanelAccess();
+                // Hide login, show dashboard immediately
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                startDashboard(); 
             } else {
-                err.innerText = "Access Denied. Check email, password, or Admin privileges.";
+                err.innerText = "Access Denied. Check credentials.";
                 err.classList.remove('hidden');
             }
         } catch (error) {
@@ -154,19 +186,17 @@
             err.innerText = "Connection Error: " + error.message;
             err.classList.remove('hidden');
         }
-
         btn.innerText = "LOGIN";
     };
 
-    function initPanelAccess() {
-        if(sessionStorage.getItem('isAdminAuth') === 'true') {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
-            startDashboard();
-        }
+    // Check session on load
+    if(sessionStorage.getItem('isAdminAuth') === 'true') {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        startDashboard();
     }
 
-    // --- 2. GLOBAL FUNCTIONS ---
+    // --- 2. TABS & UTILS ---
     window.switchTab = (id, btn) => {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -183,42 +213,30 @@
 
     window.approveDeposit = async (reqId, uid, amt) => {
         if(!confirm(`Confirm Approve ₹${amt}?`)) return;
-        
         try {
             const userRef = doc(db, "users", uid);
             const userSnap = await getDoc(userRef);
-            
             if(userSnap.exists()){
                 const current = Number(userSnap.data().deposit || 0);
-                const newBalance = current + Number(amt);
-                
-                await updateDoc(userRef, { deposit: newBalance });
+                await updateDoc(userRef, { deposit: current + Number(amt) });
                 await deleteDoc(doc(db, "addMoneyRequests", reqId));
-                
                 alert("Success: Balance Updated!");
-            } else {
-                alert("Error: User document does not exist.");
             }
-        } catch(e) { 
-            console.error(e);
-            alert("Error: " + e.message); 
+        } catch(e) { alert("Error: " + e.message); }
+    };
+
+    window.deleteReq = async (col, docId) => {
+        if(confirm("Remove this request?")) {
+            try { await deleteDoc(doc(db, col, docId)); } 
+            catch (e) { alert(e.message); }
         }
     };
 
-    window.deleteReq = async (collectionName, docId) => {
-        if(confirm("Are you sure you want to remove this request?")) {
-            try {
-                await deleteDoc(doc(db, collectionName, docId));
-            } catch (e) {
-                alert(e.message);
-            }
-        }
-    };
-
-    // --- 3. DASHBOARD LISTENERS ---
+    // --- 3. CORE LOGIC ---
     function startDashboard() {
-        console.log("Dashboard Started. Listening to Firebase...");
+        console.log("Dashboard Active");
 
+        // A. Publish Match
         document.getElementById('pubBtn').onclick = async () => {
             const btn = document.getElementById('pubBtn');
             btn.innerText = "Processing...";
@@ -234,25 +252,49 @@
                     status: "open", 
                     image: "https://i.postimg.cc/rsf7yB1M/1768308154801.jpg"
                 });
-                alert("Match Published Successfully!");
+                alert("Match Published!");
                 document.getElementById('mTitle').value = "";
-            } catch (e) { 
-                alert("Error: " + e.message); 
-            }
-            btn.innerText = "PUBLISH";
+            } catch (e) { alert("Error: " + e.message); }
+            btn.innerText = "PUBLISH MATCH";
         };
 
+        // B. Send Notification (NEW)
+        document.getElementById('btnSendNotif').onclick = async () => {
+            const title = document.getElementById('nTitle').value;
+            const message = document.getElementById('nMessage').value;
+            const btn = document.getElementById('btnSendNotif');
+
+            if(!title || !message) {
+                alert("Please enter both title and message.");
+                return;
+            }
+
+            btn.innerText = "SENDING...";
+            try {
+                await addDoc(collection(db, "notifications"), {
+                    title: title,
+                    message: message,
+                    createdAt: serverTimestamp()
+                });
+                alert("Notification Sent Successfully!");
+                document.getElementById('nTitle').value = "";
+                document.getElementById('nMessage').value = "";
+            } catch(e) {
+                alert("Error sending notification: " + e.message);
+            }
+            btn.innerText = "SEND NOW";
+        };
+
+        // C. Deposit Listener
         onSnapshot(collection(db, "addMoneyRequests"), (snapshot) => {
             const body = document.getElementById('payBody');
             body.innerHTML = '';
-            
             if(snapshot.empty) {
                 body.innerHTML = '<div class="text-gray-500 text-center py-10 bg-white/5 rounded-xl">No Pending Deposits</div>';
                 return;
             }
-
-            snapshot.forEach(docSnap => {
-                const r = docSnap.data();
+            snapshot.forEach(d => {
+                const r = d.data();
                 body.innerHTML += `
                 <div class="flex justify-between items-center bg-slate-800/50 p-4 rounded-xl border border-white/5 hover:border-emerald-500/30 transition-colors">
                     <div>
@@ -261,30 +303,26 @@
                         <p class="text-[10px] text-gray-500">UID: ${r.uid}</p>
                     </div>
                     <div class="flex flex-col gap-2 text-right">
-                        <a href="${r.proofUrl}" target="_blank" class="bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 px-4 py-1.5 rounded-lg text-xs font-bold border border-sky-500/20 transition-all">VIEW PROOF</a>
-                        
+                        <a href="${r.proofUrl}" target="_blank" class="bg-sky-500/10 text-sky-400 px-4 py-1.5 rounded-lg text-xs font-bold border border-sky-500/20">VIEW PROOF</a>
                         <div class="flex gap-2">
-                             <button onclick="deleteReq('addMoneyRequests','${docSnap.id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-red-500/20">REJECT</button>
-                             <button onclick="approveDeposit('${docSnap.id}', '${r.uid}', ${r.amount})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg shadow-emerald-900/20">APPROVE</button>
+                             <button onclick="deleteReq('addMoneyRequests','${d.id}')" class="bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-red-500/20">REJECT</button>
+                             <button onclick="approveDeposit('${d.id}', '${r.uid}', ${r.amount})" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold">APPROVE</button>
                         </div>
                     </div>
                 </div>`;
             });
-        }, (error) => {
-            console.error("Deposit Listener Error:", error);
         });
 
+        // D. Withdrawal Listener
         onSnapshot(collection(db, "withdrawalRequests"), (snapshot) => {
             const body = document.getElementById('withdrawBody');
             body.innerHTML = '';
-
             if(snapshot.empty) {
                 body.innerHTML = '<div class="text-gray-500 text-center py-10 bg-white/5 rounded-xl">No Pending Withdrawals</div>';
                 return;
             }
-
-            snapshot.forEach(docSnap => {
-                const r = docSnap.data();
+            snapshot.forEach(d => {
+                const r = d.data();
                 body.innerHTML += `
                 <div class="flex justify-between items-center bg-slate-800/50 p-4 rounded-xl border border-white/5 hover:border-orange-500/30 transition-colors">
                     <div>
@@ -295,15 +333,11 @@
                         </div>
                         <p class="text-[10px] text-gray-500 mt-1">User: ${r.uid || 'N/A'}</p>
                     </div>
-                    <button onclick="deleteReq('withdrawalRequests','${docSnap.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-emerald-900/20 active:scale-95 transition-all">MARK PAID</button>
+                    <button onclick="deleteReq('withdrawalRequests','${d.id}')" class="bg-emerald-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-emerald-900/20">MARK PAID</button>
                 </div>`;
             });
-        }, (error) => {
-             console.error("Withdraw Listener Error:", error);
         });
     }
-
-    initPanelAccess();
   </script>
 </body>
 </html>

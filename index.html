@@ -488,10 +488,7 @@
               <button class="close-notif" id="close-notif">&times;</button>
           </div>
           <div class="notif-list" id="notif-list-container">
-              <div style="text-align:center; padding: 20px; color: #64748b;">
-                  Loading updates...
               </div>
-          </div>
       </div>
   </div>
 
@@ -523,11 +520,11 @@
   </nav>
 
   <script type="module">
-    // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    // We import onSnapshot for real-time tracking
+    import { getFirestore, collection, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // --- PASTE YOUR FIREBASE CONFIG HERE ---
+    // --- ⚠️ PASTE YOUR FIREBASE CONFIG HERE ---
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -537,7 +534,7 @@
       appId: "YOUR_APP_ID"
     };
 
-    // Initialize Firebase
+    // Initialize
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
@@ -548,11 +545,79 @@
     const listContainer = document.getElementById('notif-list-container');
     const badge = document.getElementById('notif-badge');
 
-    // Toggle Overlay
+    // --- 1. SETUP REAL-TIME LISTENER ---
+    function subscribeToNotifications() {
+        listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #fbbf24;">Connecting...</div>';
+
+        try {
+            // We listen to the "notifications" collection
+            // orderBy("timestamp", "desc") ensures newest first. 
+            // Note: If you haven't created a composite index in Firebase Console, this specific query might need index creation.
+            // If it fails initially, check console for an index creation link.
+            const q = query(collection(db, "notifications"), orderBy("timestamp", "desc"), limit(20));
+            
+            // onSnapshot triggers every time data changes on the server
+            onSnapshot(q, (snapshot) => {
+                
+                // 2. Handle Empty State
+                if (snapshot.empty) {
+                    listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #64748b;">No new notifications.</div>';
+                    badge.style.display = 'none';
+                    return;
+                }
+
+                // 3. Show Badge if we have data
+                badge.style.display = 'block';
+                listContainer.innerHTML = ''; // Clear loader/old data
+
+                // 4. Populate List
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    const title = data.title || "New Notification";
+                    const message = data.message || data.body || "";
+                    
+                    let timeStr = "";
+                    if(data.timestamp) {
+                        // Handle Firestore Timestamp
+                        if(data.timestamp.seconds) {
+                            timeStr = new Date(data.timestamp.seconds * 1000).toLocaleString();
+                        } else {
+                            // Handle standard string date
+                            timeStr = new Date(data.timestamp).toLocaleString();
+                        }
+                    }
+
+                    const cardHTML = `
+                        <div class="notif-card">
+                            <div class="n-title">${title}</div>
+                            <div class="n-body">${message}</div>
+                            ${timeStr ? `<span class="n-time">${timeStr}</span>` : ''}
+                        </div>
+                    `;
+                    listContainer.insertAdjacentHTML('beforeend', cardHTML);
+                });
+
+            }, (error) => {
+                console.error("Firebase Listener Error:", error);
+                listContainer.innerHTML = `<div style="text-align:center; color: #ef4444; padding: 20px;">
+                    Error connecting to data.<br>
+                    <span style="font-size:10px; opacity:0.7">Check console & API Keys</span>
+                </div>`;
+            });
+
+        } catch (e) {
+            console.error("Setup Error:", e);
+        }
+    }
+
+    // Initialize listener immediately to "track" data and show badge
+    subscribeToNotifications();
+
+    // UI Logic for Overlay
     function toggleOverlay(show) {
         if(show) {
             overlay.classList.add('open');
-            fetchNotifications(); // Fetch data when opened
         } else {
             overlay.classList.remove('open');
         }
@@ -561,59 +626,9 @@
     notifBtn.addEventListener('click', () => toggleOverlay(true));
     closeBtn.addEventListener('click', () => toggleOverlay(false));
     
-    // Close on click outside panel
     overlay.addEventListener('click', (e) => {
         if(e.target === overlay) toggleOverlay(false);
     });
-
-    // Fetch Logic
-    async function fetchNotifications() {
-        listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #fbbf24;">Syncing...</div>';
-        
-        try {
-            // Assuming 'createdAt' is the timestamp field in your collection
-            // If you don't have a timestamp, remove: orderBy("createdAt", "desc")
-            const q = query(collection(db, "notifications")); // Optionally add orderBy here
-            const querySnapshot = await getDocs(q);
-            
-            listContainer.innerHTML = ''; // Clear loader
-
-            if (querySnapshot.empty) {
-                listContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: #64748b;">No new notifications.</div>';
-                return;
-            }
-
-            // Simple check to show badge if we have data (can be refined to unread status)
-            badge.style.display = 'block';
-
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                
-                // Fallback for missing fields
-                const title = data.title || "Notification";
-                const message = data.message || data.body || "No details available.";
-                // Formatting timestamp if available (assumes Firestore Timestamp)
-                let timeStr = "";
-                if(data.timestamp || data.createdAt) {
-                    const ts = data.timestamp || data.createdAt;
-                    timeStr = new Date(ts.seconds * 1000).toLocaleDateString();
-                }
-
-                const cardHTML = `
-                    <div class="notif-card">
-                        <div class="n-title">${title}</div>
-                        <div class="n-body">${message}</div>
-                        ${timeStr ? `<span class="n-time">${timeStr}</span>` : ''}
-                    </div>
-                `;
-                listContainer.innerHTML += cardHTML;
-            });
-
-        } catch (error) {
-            console.error("Error fetching notifications:", error);
-            listContainer.innerHTML = '<div style="text-align:center; color: #ef4444; padding: 20px;">Failed to load.</div>';
-        }
-    }
   </script>
 
   <script>

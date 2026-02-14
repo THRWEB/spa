@@ -3,45 +3,44 @@
     #cardsGrid { 
         display: grid; 
         grid-template-columns: 1fr 1fr; 
-        gap: 16px; 
+        gap: 16px; /* Slightly more breathing room */
         width: 100%; 
         margin-top: 20px;
     }
 
-    /* 2. Modern Card Design */
+    /* 2. Modern Card Design (Full Image Style) */
     .es-main-section { 
         position: relative;
-        height: 140px; 
-        border-radius: 1.5rem; 
+        height: 140px; /* Taller for better visual impact */
+        border-radius: 1.5rem; /* Smoother, rounder corners */
         overflow: hidden;
         cursor: pointer;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        background: #0f172a; 
+        background: #0f172a; /* Fallback color */
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         isolation: isolate;
-        /* FIX: Ensures this element captures the click, not the layers above */
-        z-index: 1; 
     }
 
+    /* Hover Effect: Lift up + Glow */
     .es-main-section:hover {
         transform: translateY(-3px);
         box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.8);
         border-color: rgba(255, 255, 255, 0.3);
     }
 
+    /* Active/Click Effect */
     .es-main-section:active {
         transform: scale(0.96);
     }
 
-    /* 3. Image Container */
+    /* 3. Image Container (Full Background) */
     .card-img-container {
         position: absolute;
-        inset: 0; 
+        inset: 0; /* Fills the whole card */
         width: 100%;
         height: 100%;
-        z-index: -1; /* FIX: Puts image behind content */
-        pointer-events: none; /* FIX: Clicks pass through to the parent */
+        z-index: 1;
     }
 
     .card-img-container img {
@@ -51,11 +50,12 @@
         transition: transform 0.5s ease;
     }
 
+    /* Zoom image slightly on hover */
     .es-main-section:hover .card-img-container img {
         transform: scale(1.1);
     }
 
-    /* 4. Text Overlay */
+    /* 4. Text Overlay (Glassy Gradient) */
     .card-overlay {
         position: absolute;
         bottom: 0;
@@ -68,7 +68,6 @@
         flex-direction: column;
         justify-content: flex-end;
         padding: 12px;
-        pointer-events: none; /* FIX: Clicks pass through to the parent */
     }
 
     .card-title {
@@ -78,19 +77,20 @@
         text-transform: uppercase;
         text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         margin-bottom: 2px;
+        /* Dynamic border bottom for color indicator */
         border-bottom: 3px solid transparent; 
         display: inline-block;
         width: fit-content;
     }
 
-    /* 5. Banner Design */
+    /* 5. Modern Banner Design */
     .promo-banner { 
         width: 100%; 
         border-radius: 1.2rem; 
         overflow: hidden; 
         margin-bottom: 1.5rem;
         position: relative;
-        box-shadow: 0 0 20px rgba(255, 0, 0, 0.15);
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.15); /* Subtle red glow for YT */
         border: 1px solid rgba(255,255,255,0.05);
         animation: bannerFloat 6s ease-in-out infinite;
     }
@@ -105,6 +105,7 @@
         opacity: 0.8;
     }
 
+    /* Gentle float animation for banner */
     @keyframes bannerFloat {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-4px); }
@@ -121,7 +122,7 @@
 
 <script>
     (function() {
-        // Data Set
+        // Data Set (Unchanged)
         const cardData = [
             { cat: "soloc", label: "Solo:Classic", color: "#60a5fa", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
             { cat: "solocs", label: "Solo:CS", color: "#fb923c", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },

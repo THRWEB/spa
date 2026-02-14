@@ -1,56 +1,117 @@
 <style>
-    /* ১. কার্ড গ্রিড সেটআপ (পাশাপাশি দুটি কার্ডের জন্য) */
+    /* 1. Grid Setup */
     #cardsGrid { 
         display: grid; 
         grid-template-columns: 1fr 1fr; 
-        gap: 12px; 
+        gap: 16px; 
         width: 100%; 
-        margin-top: 10px;
+        margin-top: 20px;
     }
 
-    /* ২. কার্ডের মেইন ডিজাইন */
+    /* 2. Modern Card Design */
     .es-main-section { 
-        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); 
-        border-radius: 1.2rem; 
-        box-shadow: 0 8px 20px rgba(0,0,0,0.4); 
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        cursor: pointer; 
+        position: relative;
+        height: 140px; 
+        border-radius: 1.5rem; 
         overflow: hidden;
-        transition: transform 0.2s ease;
-        display: flex;
-        flex-direction: column;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #0f172a; 
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        isolation: isolate;
+        /* FIX: Ensures this element captures the click, not the layers above */
+        z-index: 1; 
     }
 
-    /* ৩. কার্ড ইমেজ সাইজ এবং স্টাইল */
+    .es-main-section:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.8);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .es-main-section:active {
+        transform: scale(0.96);
+    }
+
+    /* 3. Image Container */
     .card-img-container {
+        position: absolute;
+        inset: 0; 
         width: 100%;
-        height: 110px; /* কার্ডের উচ্চতা নিয়ন্ত্রণ করবে */
-        overflow: hidden;
+        height: 100%;
+        z-index: -1; /* FIX: Puts image behind content */
+        pointer-events: none; /* FIX: Clicks pass through to the parent */
     }
 
     .card-img-container img {
         width: 100%;
         height: 100%;
-        object-cover: cover;
+        object-fit: cover;
+        transition: transform 0.5s ease;
     }
 
-    /* ক্লিক করলে ছোট হওয়ার ইফেক্ট */
-    .es-main-section:active {
-        transform: scale(0.95);
+    .es-main-section:hover .card-img-container img {
+        transform: scale(1.1);
     }
 
-    /* প্রোমো ব্যানার ডিজাইন */
+    /* 4. Text Overlay */
+    .card-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 40%, transparent 100%);
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 12px;
+        pointer-events: none; /* FIX: Clicks pass through to the parent */
+    }
+
+    .card-title {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        margin-bottom: 2px;
+        border-bottom: 3px solid transparent; 
+        display: inline-block;
+        width: fit-content;
+    }
+
+    /* 5. Banner Design */
     .promo-banner { 
         width: 100%; 
-        border-radius: 1rem; 
+        border-radius: 1.2rem; 
         overflow: hidden; 
-        margin-bottom: 1rem;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        margin-bottom: 1.5rem;
+        position: relative;
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.15);
+        border: 1px solid rgba(255,255,255,0.05);
+        animation: bannerFloat 6s ease-in-out infinite;
     }
-    .promo-banner img { width: 100%; object-fit: cover; }
+
+    .promo-banner img { 
+        width: 100%; 
+        display: block;
+        transition: opacity 0.3s;
+    }
+    
+    .promo-banner:active {
+        opacity: 0.8;
+    }
+
+    @keyframes bannerFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
 </style>
 
-<main class="px-3 md:px-6 max-w-4xl mx-auto py-2">
+<main class="px-3 md:px-6 max-w-4xl mx-auto py-4">
     <div class="promo-banner" onclick="window.open('https://www.youtube.com/', '_blank')">
       <img src="https://i.postimg.cc/3WQyJmNY/1768402352957.jpg" alt="Join Our Community">
     </div>
@@ -60,7 +121,7 @@
 
 <script>
     (function() {
-        // ডেটা সেট
+        // Data Set
         const cardData = [
             { cat: "soloc", label: "Solo:Classic", color: "#60a5fa", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
             { cat: "solocs", label: "Solo:CS", color: "#fb923c", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
@@ -74,15 +135,14 @@
         if(grid) {
             grid.innerHTML = cardData.map(card => `
                 <section class="es-main-section" 
-                         style="border-left: 4px solid ${card.color}"
                          onclick="localStorage.setItem('currentCat', '${card.cat}'); router.navigate('match-list')">
                     
                     <div class="card-img-container">
-                        <img src="${card.img}" alt="${card.label}" />
+                        <img src="${card.img}" alt="${card.label}" loading="lazy" />
                     </div>
                     
-                    <div class="p-2 text-center">
-                        <h3 class="text-[12px] font-bold tracking-tight uppercase" style="color: ${card.color}">
+                    <div class="card-overlay">
+                        <h3 class="card-title" style="color: ${card.color}; border-color: ${card.color};">
                             ${card.label}
                         </h3>
                     </div>

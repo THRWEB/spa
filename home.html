@@ -1,118 +1,56 @@
 <style>
-    /* 1. Grid Setup */
+    /* ১. কার্ড গ্রিড সেটআপ (পাশাপাশি দুটি কার্ডের জন্য) */
     #cardsGrid { 
         display: grid; 
         grid-template-columns: 1fr 1fr; 
-        gap: 16px; /* Slightly more breathing room */
+        gap: 12px; 
         width: 100%; 
-        margin-top: 20px;
+        margin-top: 10px;
     }
 
-    /* 2. Modern Card Design (Full Image Style) */
+    /* ২. কার্ডের মেইন ডিজাইন */
     .es-main-section { 
-        position: relative;
-        height: 140px; /* Taller for better visual impact */
-        border-radius: 1.5rem; /* Smoother, rounder corners */
+        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); 
+        border-radius: 1.2rem; 
+        box-shadow: 0 8px 20px rgba(0,0,0,0.4); 
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        cursor: pointer; 
         overflow: hidden;
-        cursor: pointer;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        background: #0f172a; /* Fallback color */
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        isolation: isolate;
+        transition: transform 0.2s ease;
+        display: flex;
+        flex-direction: column;
     }
 
-    /* Hover Effect: Lift up + Glow */
-    .es-main-section:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.8);
-        border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* Active/Click Effect */
-    .es-main-section:active {
-        transform: scale(0.96);
-    }
-
-    /* 3. Image Container (Full Background) */
+    /* ৩. কার্ড ইমেজ সাইজ এবং স্টাইল */
     .card-img-container {
-        position: absolute;
-        inset: 0; /* Fills the whole card */
         width: 100%;
-        height: 100%;
-        z-index: 1;
+        height: 110px; /* কার্ডের উচ্চতা নিয়ন্ত্রণ করবে */
+        overflow: hidden;
     }
 
     .card-img-container img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
+        object-cover: cover;
     }
 
-    /* Zoom image slightly on hover */
-    .es-main-section:hover .card-img-container img {
-        transform: scale(1.1);
+    /* ক্লিক করলে ছোট হওয়ার ইফেক্ট */
+    .es-main-section:active {
+        transform: scale(0.95);
     }
 
-    /* 4. Text Overlay (Glassy Gradient) */
-    .card-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 40%, transparent 100%);
-        z-index: 2;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        padding: 12px;
-    }
-
-    .card-title {
-        font-size: 13px;
-        font-weight: 800;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        margin-bottom: 2px;
-        /* Dynamic border bottom for color indicator */
-        border-bottom: 3px solid transparent; 
-        display: inline-block;
-        width: fit-content;
-    }
-
-    /* 5. Modern Banner Design */
+    /* প্রোমো ব্যানার ডিজাইন */
     .promo-banner { 
         width: 100%; 
-        border-radius: 1.2rem; 
+        border-radius: 1rem; 
         overflow: hidden; 
-        margin-bottom: 1.5rem;
-        position: relative;
-        box-shadow: 0 0 20px rgba(255, 0, 0, 0.15); /* Subtle red glow for YT */
-        border: 1px solid rgba(255,255,255,0.05);
-        animation: bannerFloat 6s ease-in-out infinite;
+        margin-bottom: 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
-
-    .promo-banner img { 
-        width: 100%; 
-        display: block;
-        transition: opacity 0.3s;
-    }
-    
-    .promo-banner:active {
-        opacity: 0.8;
-    }
-
-    /* Gentle float animation for banner */
-    @keyframes bannerFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-4px); }
-    }
+    .promo-banner img { width: 100%; object-fit: cover; }
 </style>
 
-<main class="px-3 md:px-6 max-w-4xl mx-auto py-4">
+<main class="px-3 md:px-6 max-w-4xl mx-auto py-2">
     <div class="promo-banner" onclick="window.open('https://www.youtube.com/', '_blank')">
       <img src="https://i.postimg.cc/3WQyJmNY/1768402352957.jpg" alt="Join Our Community">
     </div>
@@ -122,7 +60,7 @@
 
 <script>
     (function() {
-        // Data Set (Unchanged)
+        // ডেটা সেট
         const cardData = [
             { cat: "soloc", label: "Solo:Classic", color: "#60a5fa", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
             { cat: "solocs", label: "Solo:CS", color: "#fb923c", img:"https://i.postimg.cc/rsf7yB1M/1768308154801.jpg" },
@@ -136,14 +74,15 @@
         if(grid) {
             grid.innerHTML = cardData.map(card => `
                 <section class="es-main-section" 
+                         style="border-left: 4px solid ${card.color}"
                          onclick="localStorage.setItem('currentCat', '${card.cat}'); router.navigate('match-list')">
                     
                     <div class="card-img-container">
-                        <img src="${card.img}" alt="${card.label}" loading="lazy" />
+                        <img src="${card.img}" alt="${card.label}" />
                     </div>
                     
-                    <div class="card-overlay">
-                        <h3 class="card-title" style="color: ${card.color}; border-color: ${card.color};">
+                    <div class="p-2 text-center">
+                        <h3 class="text-[12px] font-bold tracking-tight uppercase" style="color: ${card.color}">
                             ${card.label}
                         </h3>
                     </div>

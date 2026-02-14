@@ -12,7 +12,7 @@
     .glass { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; }
     .tab-btn { padding: 10px 20px; border-radius: 10px; font-weight: 600; transition: 0.3s; opacity: 0.6; cursor: pointer; }
     .tab-btn.active { background: #10b981; color: white; opacity: 1; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
-    /* Purple active state for notification tab specifically if desired, but keeping uniform for now */
+    /* Overwrite active color for notification tab dynamically via JS or just keep uniform emerald */
     input, select, textarea { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; padding: 12px; border-radius: 12px; outline: none; width: 100%; }
     #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020617; z-index: 500; display: flex; justify-content: center; align-items: center; }
     #admin-panel { display: none; }
@@ -94,32 +94,45 @@
     </div>
 
     <div id="notif-tab" class="tab-content hidden">
-      <div class="glass p-8 max-w-2xl mx-auto">
-        <div class="flex items-center gap-3 mb-6">
-            <div class="p-3 bg-purple-500/20 rounded-xl text-purple-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-            </div>
-            <div>
-                <h2 class="text-xl font-bold text-purple-400">Broadcast Notification</h2>
-                <p class="text-xs text-gray-400">Send alerts to all app users</p>
-            </div>
-        </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        <div class="space-y-5">
-          <div>
-            <label class="text-xs text-gray-400 font-bold ml-1 mb-1 block">TITLE</label>
-            <input type="text" id="nTitle" placeholder="e.g. Tournament Update">
-          </div>
-          
-          <div>
-            <label class="text-xs text-gray-400 font-bold ml-1 mb-1 block">MESSAGE BODY</label>
-            <textarea id="nMessage" rows="4" placeholder="Type your message here..." class="w-full bg-slate-900 border border-slate-800 text-white p-3 rounded-xl outline-none focus:border-purple-500 transition-colors"></textarea>
-          </div>
-
-          <button id="btnSendNotif" class="w-full bg-purple-600 hover:bg-purple-500 py-4 rounded-xl font-bold text-white shadow-lg shadow-purple-900/30 transition-all active:scale-95">
-              SEND NOW
-          </button>
+        <div class="glass p-8 h-fit">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="p-3 bg-purple-500/20 rounded-xl text-purple-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-purple-400">Broadcast Notification</h2>
+                    <p class="text-xs text-gray-400">Send alerts to all app users</p>
+                </div>
+            </div>
+            
+            <div class="space-y-5">
+              <div>
+                <label class="text-xs text-gray-400 font-bold ml-1 mb-1 block">TITLE</label>
+                <input type="text" id="nTitle" placeholder="e.g. Tournament Update">
+              </div>
+              
+              <div>
+                <label class="text-xs text-gray-400 font-bold ml-1 mb-1 block">MESSAGE BODY</label>
+                <textarea id="nMessage" rows="4" placeholder="Type your message here..." class="w-full bg-slate-900 border border-slate-800 text-white p-3 rounded-xl outline-none focus:border-purple-500 transition-colors"></textarea>
+              </div>
+    
+              <button id="btnSendNotif" class="w-full bg-purple-600 hover:bg-purple-500 py-4 rounded-xl font-bold text-white shadow-lg shadow-purple-900/30 transition-all active:scale-95">
+                  SEND NOW
+              </button>
+            </div>
         </div>
+
+        <div class="glass p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-purple-300">Sent History</h2>
+                <span class="text-xs text-gray-500">Live</span>
+            </div>
+            <div id="notifHistoryBody" class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                </div>
+        </div>
+
       </div>
     </div>
 
@@ -127,7 +140,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, updateDoc, deleteDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, updateDoc, deleteDoc, serverTimestamp, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB1vzDj_3-tymzU-EomjCIlbMhsoSnDiTU",
@@ -173,7 +186,6 @@
 
             if(isAuthenticated) {
                 sessionStorage.setItem('isAdminAuth', 'true');
-                // Hide login, show dashboard immediately
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
                 startDashboard(); 
@@ -189,7 +201,6 @@
         btn.innerText = "LOGIN";
     };
 
-    // Check session on load
     if(sessionStorage.getItem('isAdminAuth') === 'true') {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
@@ -225,8 +236,9 @@
         } catch(e) { alert("Error: " + e.message); }
     };
 
+    // Generic Delete Function (Used for Deposits, Withdrawals, and now Notifications)
     window.deleteReq = async (col, docId) => {
-        if(confirm("Remove this request?")) {
+        if(confirm("Delete this item permanently?")) {
             try { await deleteDoc(doc(db, col, docId)); } 
             catch (e) { alert(e.message); }
         }
@@ -258,7 +270,7 @@
             btn.innerText = "PUBLISH MATCH";
         };
 
-        // B. Send Notification (NEW)
+        // B. Send Notification
         document.getElementById('btnSendNotif').onclick = async () => {
             const title = document.getElementById('nTitle').value;
             const message = document.getElementById('nMessage').value;
@@ -285,7 +297,33 @@
             btn.innerText = "SEND NOW";
         };
 
-        // C. Deposit Listener
+        // C. Notification History Listener (NEW)
+        onSnapshot(collection(db, "notifications"), (snapshot) => {
+            const body = document.getElementById('notifHistoryBody');
+            body.innerHTML = '';
+            if(snapshot.empty) {
+                body.innerHTML = '<div class="text-gray-500 text-center py-10 bg-white/5 rounded-xl">No Notifications Sent</div>';
+                return;
+            }
+            
+            // Note: If you have many notifications, you might need a composite index on Firestore for 'createdAt'
+            // For now, we render them as they come.
+            snapshot.forEach(d => {
+                const n = d.data();
+                body.innerHTML += `
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-white/5 hover:border-purple-500/30 transition-colors group relative">
+                    <div class="pr-8">
+                        <h4 class="text-white font-bold text-sm">${n.title}</h4>
+                        <p class="text-xs text-gray-400 mt-1 leading-relaxed">${n.message}</p>
+                    </div>
+                    <button onclick="deleteReq('notifications','${d.id}')" class="absolute top-3 right-3 text-red-400 hover:text-red-200 transition-colors p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
+                </div>`;
+            });
+        });
+
+        // D. Deposit Listener
         onSnapshot(collection(db, "addMoneyRequests"), (snapshot) => {
             const body = document.getElementById('payBody');
             body.innerHTML = '';
@@ -313,7 +351,7 @@
             });
         });
 
-        // D. Withdrawal Listener
+        // E. Withdrawal Listener
         onSnapshot(collection(db, "withdrawalRequests"), (snapshot) => {
             const body = document.getElementById('withdrawBody');
             body.innerHTML = '';

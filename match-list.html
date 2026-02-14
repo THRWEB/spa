@@ -14,7 +14,8 @@
 
 <main class="max-w-md mx-auto px-3 py-4">
     <div id="matchContainer" class="space-y-4">
-        </div>
+        <p class="text-center text-gray-400 mt-10 animate-pulse">Loading matches...</p>
+    </div>
 </main>
 
 <script type="module">
@@ -22,34 +23,48 @@
 
     (function() {
         const container = document.getElementById('matchContainer');
+        
+        // 1. Get the category ID saved from the Home Page click
         const categoryId = localStorage.getItem('currentCat');
 
+        // Check if category is missing
         if (!categoryId) {
-            container.innerHTML = '<p class="text-center text-red-400 mt-10">Category Missing!</p>';
+            container.innerHTML = `
+                <div class="text-center mt-10">
+                    <p class="text-red-400 font-bold text-lg">No Category Selected!</p>
+                    <p class="text-gray-500 text-sm">Please go back to Home and select a game type.</p>
+                </div>`;
             return;
         }
 
-        // Firestore থেকে ডাটা আনা
+        // 2. Connect to Firebase 'allMatches' collection
         const q = collection(window.db, "allMatches");
 
         onSnapshot(q, (snapshot) => {
             if (!document.getElementById('matchContainer')) return;
-            container.innerHTML = '';
+            
+            let htmlContent = '';
             let count = 0;
 
             snapshot.forEach((doc) => {
                 const match = doc.data();
                 
-                // ক্যাটাগরি অনুযায়ী ফিল্টার করা
-                if (match.category && match.category.toString().toLowerCase().trim() === categoryId.toLowerCase()) {
+                // 3. Robust Filtering:
+                // We check if match.category exists, then compare it with the localStorage category
+                // We use toLowerCase() and trim() to ensure 'soloc' matches 'SoloC' or ' soloc '
+                if (match.category && match.category.toString().toLowerCase().trim() === categoryId.toLowerCase().trim()) {
                     count++;
-                    const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : "TBA";
                     
-                    container.innerHTML += `
-                        <div id="matchCard" class="relative overflow-hidden">
+                    // Format Time (Handle missing formatter gracefully)
+                    const matchDisplayTime = window.formatMatchTime ? window.formatMatchTime(match.time) : (match.time || "TBA");
+                    
+                    // 4. Generate Card HTML
+                    htmlContent += `
+                        <div id="matchCard" class="relative overflow-hidden fade-in-up">
                           <div class="flex items-center gap-3">
                             <img src="${match.image || 'https://i.postimg.cc/rsf7yB1M/1768308154801.jpg'}" 
-                                 class="rounded-lg object-cover w-16 h-16 border-2 border-emerald-800 shadow" />
+                                 class="rounded-lg object-cover w-16 h-16 border-2 border-emerald-800 shadow" 
+                                 alt="Match Image"/>
                             <div class="match-title text-gray-100 text-lg font-bold">${match.title || 'Tournament'}</div>
                           </div>
                           
@@ -62,15 +77,21 @@
                           </div>
 
                           <button onclick="localStorage.setItem('matchId', '${doc.id}'); router.navigate('match-details')" 
-                            class="mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 rounded-xl w-full shadow-lg transition-all active:scale-95 uppercase text-sm">
+                            class="mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 rounded-xl w-full shadow-lg transition-all active:scale-95 uppercase text-sm hover:shadow-emerald-900/50">
                             Match Details
                           </button>
                         </div>`;
                 }
             });
 
+            // 5. Update the UI
             if (count === 0) {
-                container.innerHTML = '<p class="text-center text-gray-500 mt-20 italic font-bold">No active matches found!</p>';
+                container.innerHTML = `
+                    <div class="text-center mt-20">
+                        <p class="text-gray-500 italic font-bold">No matches found for <span class="text-emerald-400">${categoryId}</span>!</p>
+                    </div>`;
+            } else {
+                container.innerHTML = htmlContent;
             }
         });
     })();
